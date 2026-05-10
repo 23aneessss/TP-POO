@@ -5,6 +5,7 @@ import com.esi.smartfarming.releve.Releve;
 
 import java.util.Date;
 
+
 public class Alerte {
     private int id;
     private Releve releve;
