@@ -1,5 +1,6 @@
 package com.esi.smartfarming.alimentation;
 
+@SuppressWarnings("unused")
 public class ProgrammeAlimentation {
     private String typeAliment;
     private double quantiteParRepas;
@@ -8,7 +9,4 @@ public class ProgrammeAlimentation {
         this.typeAliment = typeAliment;
         this.quantiteParRepas = quantiteParRepas;
     }
-
-    public String getTypeAliment() { return typeAliment; }
-    public double getQuantiteParRepas() { return quantiteParRepas; }
 }

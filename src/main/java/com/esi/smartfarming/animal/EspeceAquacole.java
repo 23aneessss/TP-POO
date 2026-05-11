@@ -1,5 +1,6 @@
 package com.esi.smartfarming.animal;
 
+@SuppressWarnings("unused")
 public class EspeceAquacole {
     private int id;
     private String espece;
@@ -10,8 +11,4 @@ public class EspeceAquacole {
         this.espece = espece;
         this.nombre = nombre;
     }
-
-    public int getId() { return id; }
-    public String getEspece() { return espece; }
-    public int getNombre() { return nombre; }
 }

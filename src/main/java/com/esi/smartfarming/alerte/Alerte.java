@@ -5,7 +5,7 @@ import com.esi.smartfarming.releve.Releve;
 
 import java.util.Date;
 
-
+@SuppressWarnings("unused")
 public class Alerte {
     private int id;
     private Releve releve;
@@ -20,12 +20,4 @@ public class Alerte {
         this.dateHeure = dateHeure;
         this.acquittee = false;
     }
-
-    public int getId() { return id; }
-    public Releve getReleve() { return releve; }
-    public NiveauGravite getNiveauGravite() { return niveauGravite; }
-    public Date getDateHeure() { return dateHeure; }
-    public void acquitter() { this.acquittee = true; }
-    public void supprimer() { this.releve = null; }
-    public boolean isAcquittee() { return acquittee; }
 }

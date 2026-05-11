@@ -5,6 +5,7 @@ import com.esi.smartfarming.enums.TypeFamille;
 
 import java.util.Date;
 
+@SuppressWarnings("unused")
 public class Culture {
     private int id;
     private String nom;
@@ -18,7 +19,7 @@ public class Culture {
     private double humiditeMax;
 
     public Culture(int id, String nom, TypeFamille famille, Date datePlantation, Date dateRecoltePrevu,
-        double pHMin, double pHMax, double humiditeMin, double humiditeMax) {
+                   double pHMin, double pHMax, double humiditeMin, double humiditeMax) {
         this.id = id;
         this.nom = nom;
         this.famille = famille;
@@ -29,15 +30,5 @@ public class Culture {
         this.pHMax = pHMax;
         this.humiditeMin = humiditeMin;
         this.humiditeMax = humiditeMax;
-    }
-
-    public int getId() { return id; }
-    public String getNom() { return nom; }
-    public TypeFamille getFamille() { return famille; }
-    public StageCroissance getStageCroissance() { return stageCroissance; }
-    public void setStageCroissance(StageCroissance s) { this.stageCroissance = s; }
-
-    public String getExigencesPedologiques() {
-        return "pH:[" + pHMin + "," + pHMax + "] humidite:[" + humiditeMin + "," + humiditeMax + "]";
     }
 }

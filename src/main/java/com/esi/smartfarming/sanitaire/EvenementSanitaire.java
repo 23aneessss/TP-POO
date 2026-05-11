@@ -4,6 +4,7 @@ import com.esi.smartfarming.animal.Animal;
 
 import java.util.Date;
 
+@SuppressWarnings("unused")
 public class EvenementSanitaire {
     private int id;
     private Animal animal;
@@ -18,10 +19,4 @@ public class EvenementSanitaire {
         this.date = date;
         this.nouveauPoids = nouveauPoids;
     }
-
-    public int getId() { return id; }
-    public Animal getAnimal() { return animal; }
-    public String getDescription() { return description; }
-    public Date getDate() { return date; }
-    public double getNouveauPoids() { return nouveauPoids; }
 }

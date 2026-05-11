@@ -1,15 +1,9 @@
 # Plan de travail - TP POO : ESI Smart Farming
 ## Binome : Anes & Ghano
 
----
-
-## Etat actuel du projet (11/05/2026)
 
 Toutes les classes ont ete creees et compilent correctement. La structure complete du projet est en place : packages, heritage, interface, enumerations, attributs, constructeurs et getters. Les corps de certaines methodes restent a completer (logique metier, liens entre classes, scenario de demonstration).
 
----
-
-## Ce qu'il reste a faire (version reduite et realiste)
 
 ### Partie Anes
 
@@ -35,16 +29,13 @@ Toutes les classes ont ete creees et compilent correctement. La structure comple
 - Verifier la compilation globale du projet.
 - Preparer une demonstration coherente pour le prof.
 
----
-
 ## Planning des seances restantes
 
-### Seance 1 sur site - Demain (12/05/2026)
 
 **Objectif : completer les corps de methodes et commencer le scenario de demo.**
 
 | Tache | Responsable |
-|---|---|
+|-------|-------------|
 | Completer `enregistrer()` dans HistoriqueCulture, HistoriqueLait, HistoriqueOeuf | Anes |
 | Completer `enregistrerProduction()` dans Ruminant et Volaille | Anes |
 | Completer `verifierLimites()` dans Ruminant et Volaille | Anes |

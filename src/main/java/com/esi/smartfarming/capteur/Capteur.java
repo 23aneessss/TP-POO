@@ -4,6 +4,7 @@ import com.esi.smartfarming.core.Suspendable;
 import com.esi.smartfarming.enums.StatutCapteur;
 import com.esi.smartfarming.zone.Zone;
 
+@SuppressWarnings("unused")
 public abstract class Capteur implements Suspendable {
     protected String code;
     protected Zone zone;
@@ -19,15 +20,9 @@ public abstract class Capteur implements Suspendable {
         this.statut = StatutCapteur.ACTIF;
     }
 
-    public String getCode() { return code; }
-    public Zone getZone() { return zone; }
-    public StatutCapteur getStatut() { return statut; }
-    public double getSeuilMin() { return seuilMin; }
-    public double getSeuilMax() { return seuilMax; }
+    @Override
+    public void suspendre() {}
 
     @Override
-    public void suspendre() { this.statut = StatutCapteur.SUSPENDU; }
-
-    @Override
-    public void activer() { this.statut = StatutCapteur.ACTIF; }
+    public void activer() {}
 }

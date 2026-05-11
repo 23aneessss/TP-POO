@@ -1,0 +1,433 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+' =========================
+' Interface
+' =========================
+
+interface Suspendable {
+  +suspendre() : void
+  +activer() : void
+}
+
+' =========================
+' Enumerations
+' =========================
+
+enum StatutZone {
+  ACTIVE
+  SUSPENDUE
+}
+
+enum TypeFamille {
+  CEREALE
+  LEGUME
+  FRUIT
+}
+
+enum StageCroissance {
+  SEMIS
+  GERMINATION
+  CROISSANCE
+  MATURITE
+  RECOLTE
+}
+
+enum StatutAnimal {
+  SAIN
+  MALADE
+  QUARANTAINE
+}
+
+enum StatutCapteur {
+  ACTIF
+  DEFAILLANT
+  SUSPENDU
+}
+
+enum NiveauGravite {
+  AVERTISSEMENT
+  CRITIQUE
+}
+
+enum NiveauReleve {
+  NORMAL
+  AVERTISSEMENT
+  CRITIQUE
+}
+
+' =========================
+' Zone
+' =========================
+
+abstract class Zone {
+  -code : String
+  -nom : String
+  -statut : StatutZone
+  -capteurs : List<Capteur>
+
+  +getCode() : String
+  +getNom() : String
+  +getStatut() : StatutZone
+  +getCapteurs() : List<Capteur>
+  +suspendre() : void
+  +activer() : void
+  +getHistorique() : HistoriqueProduction
+}
+
+class ZoneCulture {
+  -cultures : List<Culture>
+  -capteursEnv : List<CapteurEnvironnemental>
+  -capteursSol : List<CapteurSol>
+  -historique : HistoriqueCulture
+
+  +ajouterCulture(c : Culture) : void
+  +getCultures() : List<Culture>
+  +genererRapportCultures() : String
+  +enregistrerRendement(valeur : double, date : Date) : void
+  +getHistorique() : HistoriqueProduction
+}
+
+class ZoneElevage {
+  -animaux : List<Animal>
+  -programmeAlimentation : ProgrammeAlimentation
+  -historiqueLait : HistoriqueLait
+  -historiqueOeuf : HistoriqueOeuf
+
+  +ajouterAnimal(a : Animal) : void
+  +getAnimaux() : List<Animal>
+  +setProgrammeAlimentation(p : ProgrammeAlimentation) : void
+  +getProgrammeAlimentation() : ProgrammeAlimentation
+  +getHistorique() : HistoriqueProduction
+}
+
+class ZoneAquacole {
+  -especes : List<EspeceAquacole>
+  -capteursEau : List<CapteurEau>
+  -programmeAlimentation : ProgrammeAlimentation
+  -historique : HistoriqueAquacole
+
+  +ajouterEspece(e : EspeceAquacole) : void
+  +getEspeces() : List<EspeceAquacole>
+  +setProgrammeAlimentation(p : ProgrammeAlimentation) : void
+  +getProgrammeAlimentation() : ProgrammeAlimentation
+  +getHistorique() : HistoriqueProduction
+}
+
+Zone ..|> Suspendable
+ZoneCulture --|> Zone
+ZoneElevage --|> Zone
+ZoneAquacole --|> Zone
+
+' =========================
+' Culture
+' =========================
+
+class Culture {
+  -id : int
+  -nom : String
+  -famille : TypeFamille
+  -datePlantation : Date
+  -dateRecoltePrevu : Date
+  -stageCroissance : StageCroissance
+  -pHMin : double
+  -pHMax : double
+  -humiditeMin : double
+  -humiditeMax : double
+
+  +getId() : int
+  +getNom() : String
+  +getFamille() : TypeFamille
+  +getStageCroissance() : StageCroissance
+  +setStageCroissance(s : StageCroissance) : void
+  +getExigencesPedologiques() : String
+}
+
+' =========================
+' Animal
+' =========================
+
+abstract class Animal {
+  -numero : int
+  -espece : String
+  -age : int
+  -poids : double
+  -etatSante : StatutAnimal
+  -capteurBiometrique : CapteurBiometrique
+  -capteurGPS : CapteurGPS
+  -evenements : List<EvenementSanitaire>
+
+  +getNumero() : int
+  +getEspece() : String
+  +getAge() : int
+  +getPoids() : double
+  +setPoids(p : double) : void
+  +getEtatSante() : StatutAnimal
+  +setEtatSante(s : StatutAnimal) : void
+  +ajouterEvenement(e : EvenementSanitaire) : void
+  +verifierLimites(z : ZoneElevage) : boolean
+}
+
+class Ruminant {
+  +enregistrerProduction(lait : double, date : Date) : void
+  +verifierLimites(z : ZoneElevage) : boolean
+}
+
+class Volaille {
+  +enregistrerProduction(nbOeufs : int, date : Date) : void
+  +verifierLimites(z : ZoneElevage) : boolean
+}
+
+class EspeceAquacole {
+  -id : int
+  -espece : String
+  -nombre : int
+
+  +getId() : int
+  +getEspece() : String
+  +getNombre() : int
+}
+
+Ruminant --|> Animal
+Volaille --|> Animal
+
+' =========================
+' Capteur
+' =========================
+
+abstract class Capteur {
+  -code : String
+  -zone : Zone
+  -statut : StatutCapteur
+  -seuilMin : double
+  -seuilMax : double
+
+  +getCode() : String
+  +getZone() : Zone
+  +getStatut() : StatutCapteur
+  +getSeuilMin() : double
+  +getSeuilMax() : double
+  +suspendre() : void
+  +activer() : void
+}
+
+abstract class CapteurNumerique {
+  -unite : String
+  -historique : List<ReleveNumerique>
+
+  +getUnite() : String
+  +getHistorique() : List<ReleveNumerique>
+  +envoyerReleve() : ReleveNumerique
+  +verifierSeuil(valeur : double) : boolean
+}
+
+class CapteurEnvironnemental {
+  -typeCapture : String
+  +envoyerReleve() : ReleveNumerique
+}
+
+class CapteurSol {
+  -typeCapture : String
+  +envoyerReleve() : ReleveNumerique
+}
+
+class CapteurBiometrique {
+  -animal : Animal
+  -typeCapture : String
+  +envoyerReleve() : ReleveNumerique
+}
+
+class CapteurEau {
+  -typeCapture : String
+  +envoyerReleve() : ReleveNumerique
+}
+
+class CapteurGPS {
+  -animal : Animal
+  -historiqueGPS : List<ReleveGPS>
+
+  +getHistoriqueGPS() : List<ReleveGPS>
+  +envoyerReleve() : ReleveGPS
+}
+
+Capteur ..|> Suspendable
+CapteurNumerique --|> Capteur
+CapteurEnvironnemental --|> CapteurNumerique
+CapteurSol --|> CapteurNumerique
+CapteurBiometrique --|> CapteurNumerique
+CapteurEau --|> CapteurNumerique
+CapteurGPS --|> Capteur
+
+' =========================
+' Releve
+' =========================
+
+abstract class Releve {
+  -id : int
+  -capteur : Capteur
+  -dateHeure : Date
+  -niveau : NiveauReleve
+
+  +getId() : int
+  +getCapteur() : Capteur
+  +getDateHeure() : Date
+  +getNiveau() : NiveauReleve
+}
+
+class ReleveNumerique {
+  -valeur : double
+  -unite : String
+  -capteurNumerique : CapteurNumerique
+
+  +getValeur() : double
+  +getUnite() : String
+  +getCapteurNumerique() : CapteurNumerique
+}
+
+class ReleveGPS {
+  -latitude : double
+  -longitude : double
+  -capteurGPS : CapteurGPS
+
+  +getLatitude() : double
+  +getLongitude() : double
+  +getCapteurGPS() : CapteurGPS
+}
+
+ReleveNumerique --|> Releve
+ReleveGPS --|> Releve
+
+' =========================
+' Alerte
+' =========================
+
+class Alerte {
+  -id : int
+  -releve : Releve
+  -niveauGravite : NiveauGravite
+  -dateHeure : Date
+  -acquittee : boolean
+
+  +getId() : int
+  +getReleve() : Releve
+  +getNiveauGravite() : NiveauGravite
+  +getDateHeure() : Date
+  +acquitter() : void
+  +supprimer() : void
+  +isAcquittee() : boolean
+}
+
+' =========================
+' Historique
+' =========================
+
+abstract class HistoriqueProduction {
+  -zone : Zone
+  -date : Date
+
+  +getZone() : Zone
+  +getDate() : Date
+  +enregistrer() : void
+}
+
+class HistoriqueCulture {
+  -rendement : double
+  +enregistrer() : void
+}
+
+class HistoriqueLait {
+  -quantiteLait : double
+  +enregistrer() : void
+}
+
+class HistoriqueOeuf {
+  -nombreOeufs : int
+  +enregistrer() : void
+}
+
+class HistoriqueAquacole {
+  -poidsRecolte : double
+  +enregistrer() : void
+}
+
+HistoriqueCulture --|> HistoriqueProduction
+HistoriqueLait --|> HistoriqueProduction
+HistoriqueOeuf --|> HistoriqueProduction
+HistoriqueAquacole --|> HistoriqueProduction
+
+' =========================
+' Alimentation
+' =========================
+
+class ProgrammeAlimentation {
+  -typeAliment : String
+  -quantiteParRepas : double
+
+  +getTypeAliment() : String
+  +getQuantiteParRepas() : double
+}
+
+' =========================
+' Sanitaire
+' =========================
+
+class EvenementSanitaire {
+  -id : int
+  -animal : Animal
+  -description : String
+  -date : Date
+  -nouveauPoids : double
+
+  +getId() : int
+  +getAnimal() : Animal
+  +getDescription() : String
+  +getDate() : Date
+  +getNouveauPoids() : double
+}
+
+' =========================
+' Relations principales
+' =========================
+
+Zone "1" o-- "0..*" Capteur : contient
+ZoneCulture "1" o-- "0..*" Culture : cultures
+ZoneCulture "1" o-- "0..*" CapteurEnvironnemental : capteursEnv
+ZoneCulture "1" o-- "0..*" CapteurSol : capteursSol
+ZoneCulture "1" o-- "1" HistoriqueCulture : historique
+
+ZoneElevage "1" o-- "0..*" Animal : animaux
+ZoneElevage "1" o-- "0..1" ProgrammeAlimentation : programme
+ZoneElevage "1" o-- "0..1" HistoriqueLait : historiqueLait
+ZoneElevage "1" o-- "0..1" HistoriqueOeuf : historiqueOeuf
+
+ZoneAquacole "1" o-- "0..*" EspeceAquacole : especes
+ZoneAquacole "1" o-- "0..*" CapteurEau : capteursEau
+ZoneAquacole "1" o-- "0..1" ProgrammeAlimentation : programme
+ZoneAquacole "1" o-- "1" HistoriqueAquacole : historique
+
+Animal "1" o-- "0..1" CapteurBiometrique : capteurBiometrique
+Animal "1" o-- "0..1" CapteurGPS : capteurGPS
+Animal "1" o-- "0..*" EvenementSanitaire : evenements
+
+Capteur "1" --> "1" Zone : zone
+CapteurNumerique "1" o-- "0..*" ReleveNumerique : historique
+CapteurGPS "1" o-- "0..*" ReleveGPS : historiqueGPS
+
+Releve "1" --> "1" Capteur : capteur
+ReleveNumerique "1" --> "1" CapteurNumerique : capteurNumerique
+ReleveGPS "1" --> "1" CapteurGPS : capteurGPS
+
+Alerte "1" --> "1" Releve : releve
+
+HistoriqueProduction "1" --> "1" Zone : zone
+EvenementSanitaire "1" --> "1" Animal : animal
+
+Culture --> TypeFamille
+Culture --> StageCroissance
+Zone --> StatutZone
+Animal --> StatutAnimal
+Capteur --> StatutCapteur
+Releve --> NiveauReleve
+Alerte --> NiveauGravite
+
+@enduml
