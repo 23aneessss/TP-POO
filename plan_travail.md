@@ -1,251 +1,126 @@
 # Plan de travail - TP POO : ESI Smart Farming
+## Binome : Anes & Ghano
 
-## 1. Informations generales
+---
 
-- **Projet :** Application de bureau pour la gestion intelligente d'une ferme.
-- **Membres du binome :** Anes et Ghano.
-- **Mode de travail :** Travail en binome avec une repartition des taches par modules.
-- **Organisation :** Seances de travail sur site les lundis, avec un travail a domicile entre les seances.
+## Etat actuel du projet (11/05/2026)
 
-## 2. Objectif du travail
+Toutes les classes ont ete creees et compilent correctement. La structure complete du projet est en place : packages, heritage, interface, enumerations, attributs, constructeurs et getters. Les corps de certaines methodes restent a completer (logique metier, liens entre classes, scenario de demonstration).
 
-L'objectif du travail est de concevoir puis d'implementer progressivement le systeme demande dans le sujet du TP **ESI - Smart Farming**, selon la conception UML modifiee du dossier `tpContext`.
+---
 
-Le travail sera realise par etapes :
+## Ce qu'il reste a faire (version reduite et realiste)
 
-1. Etudier le sujet et valider la conception UML modifiee.
-2. Creer la structure complete des packages et des classes du modele objet.
-3. Implementer les modules fonctionnels (zones, cultures, animaux, capteurs, releves, alertes, historiques).
-4. Integrer les parties realisees par chaque membre du binome.
-5. Tester, corriger et preparer la remise finale.
+### Partie Anes
 
-La conception UML modifiee servira de reference avant de commencer l'implementation principale.
+- Completer `HistoriqueCulture.enregistrer()` : afficher ou stocker le rendement avec la date et la zone.
+- Completer `HistoriqueLait.enregistrer()` : afficher ou stocker la quantite de lait avec la date.
+- Completer `HistoriqueOeuf.enregistrer()` : afficher ou stocker le nombre d'oeufs avec la date.
+- Completer `Ruminant.enregistrerProduction()` : creer un `HistoriqueLait` et appeler `enregistrer()`.
+- Completer `Volaille.enregistrerProduction()` : creer un `HistoriqueOeuf` et appeler `enregistrer()`.
+- Completer `Ruminant.verifierLimites()` et `Volaille.verifierLimites()` : verifier que le nombre d'animaux dans la zone ne depasse pas une limite raisonnable.
+- Ajouter `ajouterCapteurEnv()` et `ajouterCapteurSol()` dans `ZoneCulture` si manquant.
 
-## 3. Repartition generale des taches
+### Partie Ghano
 
-### 3.1. Taches de Anes
+- Completer `HistoriqueAquacole.enregistrer()` : afficher ou stocker le poids de recolte avec la date.
+- Corriger `Alerte.supprimer()` : la logique actuelle met le releve a null, il faut adapter (marquer comme supprimee ou vider les references).
+- Ajouter `getProgrammeAlimentation()` dans `ZoneAquacole` (methode manquante).
+- Corriger `CapteurGPS.envoyerReleve()` : les coordonnees sont codees en dur a 0.0, ajouter des parametres reels ou simuler des valeurs.
+- Ajouter `ajouterCapteurEau()` dans `ZoneAquacole` si manquant.
 
-Anes prendra en charge les parties suivantes :
+### Partie commune
 
-- Classes attribuees a Anes :
-  - `Zone` ;
-  - `ZoneCulture` ;
-  - `ZoneElevage` ;
-  - `Culture` ;
-  - `Animal` ;
-  - `Ruminant` ;
-  - `Volaille` ;
-  - `ProgrammeAlimentation` ;
-  - `EvenementSanitaire` ;
-  - `HistoriqueProduction` ;
-  - `HistoriqueCulture` ;
-  - `HistoriqueLait` ;
-  - `HistoriqueOeuf` ;
-  - `StatutZone` ;
-  - `StatutAnimal` ;
-  - `TypeFamille` ;
-  - `StageCroissance`.
-- Responsabilites fonctionnelles de Anes :
-  - gestion des zones de culture ;
-  - gestion des zones d'elevage ;
-  - gestion complete des cultures ;
-  - gestion des animaux d'elevage et du suivi sanitaire ;
-  - generation de rapport des cultures ;
-  - enregistrement des rendements de culture ;
-  - integration des historiques culture, lait et oeufs ;
-  - verification des relations entre zones et capteurs.
+- Creer une classe `Main` avec un scenario complet qui instancie et relie les objets.
+- Verifier la compilation globale du projet.
+- Preparer une demonstration coherente pour le prof.
 
-### 3.2. Taches de Ghano
+---
 
-Ghano prendra en charge les parties suivantes :
+## Planning des seances restantes
 
-- Classes attribuees a Ghano :
-  - `ZoneAquacole` ;
-  - `EspeceAquacole` ;
-  - `Suspendable` ;
-  - `Capteur` ;
-  - `CapteurNumerique` ;
-  - `CapteurEnvironnemental` ;
-  - `CapteurSol` ;
-  - `CapteurBiometrique` ;
-  - `CapteurEau` ;
-  - `CapteurGPS` ;
-  - `StatutCapteur` ;
-  - `Releve` ;
-  - `ReleveNumerique` ;
-  - `ReleveGPS` ;
-  - `NiveauReleve` ;
-  - `Alerte` ;
-  - `NiveauGravite` ;
-  - `HistoriqueAquacole`.
-- Responsabilites fonctionnelles de Ghano :
-  - gestion des zones aquacoles ;
-  - gestion des especes aquacoles ;
-  - gestion complete des capteurs et des releves ;
-  - gestion des alertes ;
-  - integration de l'historique aquacole ;
-  - verification de l'interface `Suspendable` et des transitions de statut.
+### Seance 1 sur site - Demain (12/05/2026)
 
-### 3.3. Travail commun
+**Objectif : completer les corps de methodes et commencer le scenario de demo.**
 
-Les parties suivantes seront realisees en commun :
+| Tache | Responsable |
+|---|---|
+| Completer `enregistrer()` dans HistoriqueCulture, HistoriqueLait, HistoriqueOeuf | Anes |
+| Completer `enregistrerProduction()` dans Ruminant et Volaille | Anes |
+| Completer `verifierLimites()` dans Ruminant et Volaille | Anes |
+| Completer `enregistrer()` dans HistoriqueAquacole | Ghano |
+| Corriger `Alerte.supprimer()` et `CapteurGPS.envoyerReleve()` | Ghano |
+| Ajouter `getProgrammeAlimentation()` dans ZoneAquacole | Ghano |
+| Commencer la classe `Main` avec un premier scenario | Commun |
 
-- validation de l'UML modifie ;
-- verification de la coherence des packages `com.esi.smartfarming.*` ;
-- creation des classes abstraites et interfaces de base ;
-- verification des relations entre les classes (heritage, composition, agregation) ;
-- integration finale des modules ;
-- tests globaux ;
-- correction des erreurs ;
-- preparation de la demonstration finale.
+---
 
-## 4. Planning par seances
+### Travail a domicile entre la seance 1 et la seance 2
 
-### 4.1. Avant la premiere seance sur site
+**Objectif : finir chaque module et le tester independamment.**
 
-Travail prepare par Anes et Ghano :
+| Tache | Responsable |
+|---|---|
+| Verifier que la ZoneCulture genere un rapport coherent | Anes |
+| Tester le lien Ruminant → HistoriqueLait et Volaille → HistoriqueOeuf | Anes |
+| Tester le lien ZoneAquacole → EspeceAquacole → HistoriqueAquacole | Ghano |
+| Tester le flux Capteur → Releve → Alerte | Ghano |
+| Finaliser et enrichir la classe Main | Commun |
 
-- relire attentivement le sujet du TP ;
-- verifier la conception UML modifiee ;
-- verifier la liste complete des classes, interface, classes abstraites et enumerations ;
-- preparer la repartition des modules ;
-- identifier les classes principales a creer pendant la premiere seance.
+---
 
-Objectif de cette etape : arriver a la premiere seance avec une conception claire, une liste de classes complete et une repartition validee.
+### Seance 2 sur site
 
-### 4.2. Seance 1 sur site - Lundi
+**Objectif : integration des deux parties et validation du scenario complet.**
 
-Travail commun :
+| Tache | Responsable |
+|---|---|
+| Verifier que les zones, animaux et historiques s'enchainent correctement | Anes |
+| Verifier que capteurs, releves et alertes s'enchainent correctement | Ghano |
+| Executer la classe Main et corriger les erreurs | Commun |
+| Verifier la coherence avec le diagramme UML | Commun |
 
-- creer la structure du projet et des packages ;
-- creer toutes les classes de base selon l'UML modifie ;
-- mettre en place les attributs, constructeurs et methodes ;
-- verifier les classes abstraites et interfaces (`Zone`, `Capteur`, `Animal`, `Releve`, `HistoriqueProduction`, `Suspendable`) ;
-- verifier que les classes respectent les relations prevues dans la conception.
+---
 
-Repartition pendant la seance :
+### Travail a domicile entre la seance 2 et la seance 3
 
-- **Anes :**
-  - initialise `zone`, `culture`, `animal`, `sanitaire`, `historique` (culture/lait/oeufs) ;
-  - prepare les methodes de base liees aux zones, cultures et animaux d'elevage.
-- **Ghano :**
-  - initialise `zone aquacole`, `capteur`, `releve`, `alerte` ;
-  - prepare les methodes de base liees a l'aquaculture, aux capteurs et aux alertes.
+**Objectif : corrections finales et preparation de la demonstration.**
 
-Objectif de la seance : obtenir une base de code complete contenant toutes les classes prevues.
+| Tache | Responsable |
+|---|---|
+| Nettoyer le code de la partie elevage/culture | Anes |
+| Nettoyer le code de la partie capteurs/alertes/aquacole | Ghano |
+| Finaliser la classe Main pour la demonstration | Commun |
+| Verifier qu'aucune classe ne manque par rapport a l'UML | Commun |
 
-### 4.3. Travail a domicile entre les deux lundis
+---
 
-Travail de Anes :
+### Seance 3 sur site (validation finale)
 
-- completer les fonctions de `ZoneCulture`, `ZoneElevage`, `Culture`, `Animal`, `Ruminant`, `Volaille` ;
-- completer `HistoriqueCulture`, `HistoriqueLait`, `HistoriqueOeuf` ;
-- verifier l'integration avec les capteurs environnementaux et sol ;
-- tester separement les classes dont il est responsable.
+**Objectif : demonstration au professeur.**
 
-Travail de Ghano :
+| Tache | Responsable |
+|---|---|
+| Presenter le scenario de la classe Main | Commun |
+| Repondre aux questions du prof sur les classes dont chacun est responsable | Anes / Ghano |
+| Corriger les remarques sur place si necessaire | Commun |
 
-- completer les fonctions de `ZoneAquacole` et `EspeceAquacole` ;
-- completer la gestion complete des capteurs et releves ;
-- completer `Alerte` et `HistoriqueAquacole` ;
-- tester separement les classes dont il est responsable.
+---
 
-Travail commun a distance :
+## Repartition des responsabilites par module
 
-- comparer l'avancement de chaque partie ;
-- verifier que les noms des classes et methodes restent coherents avec l'UML ;
-- preparer les points a integrer pendant la deuxieme seance sur site.
-
-Objectif de cette etape : avancer les modules separement avant l'integration.
-
-### 4.4. Seance 2 sur site - Lundi suivant
-
-Travail commun :
-
-- integrer les modules developpes par Anes et Ghano ;
-- verifier les relations entre zones, cultures, animaux, capteurs, releves et alertes ;
-- corriger les incoherences entre les parties ;
-- commencer les tests globaux ;
-- verifier que les fonctionnalites principales demandees dans le sujet sont presentes.
-
-Repartition pendant la seance :
-
-- **Anes :**
-  - verifie l'integration des zones, cultures, animaux d'elevage et historiques associes ;
-  - corrige les problemes lies a ces modules.
-- **Ghano :**
-  - verifie l'integration aquacole, capteurs, releves, alertes et historiques associes ;
-  - corrige les problemes lies a ces modules.
-
-Objectif de la seance : obtenir une version integree du projet conforme a la conception modifiee.
-
-### 4.5. Travail a domicile apres la deuxieme seance
-
-Travail de Anes :
-
-- finaliser les fonctionnalites liees a `Zone` / `ZoneCulture` / `ZoneElevage` / `Culture` ;
-- finaliser les fonctionnalites de `Animal` / `Ruminant` / `Volaille` / `EvenementSanitaire` ;
-- finaliser les methodes de rapport et rendement ;
-- verifier les affichages associes aux zones et cultures.
-
-Travail de Ghano :
-
-- finaliser les fonctionnalites liees a `ZoneAquacole` et `EspeceAquacole` ;
-- finaliser les fonctionnalites liees aux capteurs et releves ;
-- finaliser les alertes et les historiques d'elevage/aquaculture.
-
-Travail commun :
-
-- corriger les bugs detectes pendant les tests ;
-- completer les affichages necessaires ;
-- verifier les historiques ;
-- preparer la demonstration finale ;
-- relire le code et nettoyer les parties inutiles.
-
-Objectif de cette etape : finaliser le projet avant la remise.
-
-### 4.6. Seance 3 optionnelle
-
-Cette seance sera utilisee uniquement si elle est programmee ou demandee pour la validation finale.
-
-Travail prevu :
-
-- effectuer une validation finale ;
-- lancer les tests complets ;
-- verifier le comportement global de l'application ;
-- nettoyer le code ;
-- preparer la remise finale.
-
-Objectif de la seance : confirmer que le projet est pret a etre presente.
-
-## 5. Verification du document
-
-Avant la remise du plan, les points suivants doivent etre verifies :
-
-- le document est redige en francais ;
-- Anes et Ghano ont chacun des responsabilites claires ;
-- le travail est organise par etapes ;
-- le plan suit l'ordre suivant : conception UML, creation des classes, developpement principal, integration, validation ;
-- toutes les classes de la nouvelle structure sont prises en compte ;
-- aucune fonctionnalite exterieure au sujet n'est ajoutee ;
-- la troisieme seance est indiquee comme optionnelle.
-
-## 6. Hypotheses
-
-- Le document est un plan de travail et ne contient pas encore le code du projet.
-- La conception UML modifiee fournie dans le dossier `tpContext` sert de reference principale.
-- Les deux seances du lundi sont obligatoires.
-- La troisieme seance reste optionnelle selon la disponibilite ou la demande du professeur.
-- Le travail est realise progressivement par parties, et non en une seule fois.
-- Les classes suivantes doivent exister dans le projet final :
-  - `Suspendable` ;
-  - `Zone`, `ZoneCulture`, `ZoneElevage`, `ZoneAquacole` ;
-  - `Culture` ;
-  - `Animal`, `Ruminant`, `Volaille`, `EspeceAquacole` ;
-  - `Capteur`, `CapteurNumerique`, `CapteurEnvironnemental`, `CapteurSol`, `CapteurBiometrique`, `CapteurEau`, `CapteurGPS` ;
-  - `Releve`, `ReleveNumerique`, `ReleveGPS` ;
-  - `Alerte` ;
-  - `ProgrammeAlimentation` ;
-  - `EvenementSanitaire` ;
-  - `HistoriqueProduction`, `HistoriqueCulture`, `HistoriqueLait`, `HistoriqueOeuf`, `HistoriqueAquacole` ;
-  - `StatutZone`, `TypeFamille`, `StageCroissance`, `StatutAnimal`, `StatutCapteur`, `NiveauGravite`, `NiveauReleve`.
+| Module | Responsable |
+|---|---|
+| Zone, ZoneCulture, ZoneElevage | Anes |
+| Culture, Animal, Ruminant, Volaille | Anes |
+| ProgrammeAlimentation, EvenementSanitaire | Anes |
+| HistoriqueCulture, HistoriqueLait, HistoriqueOeuf | Anes |
+| Enumerations : StatutZone, StatutAnimal, TypeFamille, StageCroissance | Anes |
+| ZoneAquacole, EspeceAquacole | Ghano |
+| Capteur, CapteurNumerique, CapteurEnvironnemental, CapteurSol | Ghano |
+| CapteurBiometrique, CapteurEau, CapteurGPS | Ghano |
+| Releve, ReleveNumerique, ReleveGPS | Ghano |
+| Alerte, HistoriqueAquacole | Ghano |
+| Interface Suspendable | Ghano |
+| Enumerations : StatutCapteur, NiveauGravite, NiveauReleve | Ghano |
+| Classe Main (scenario de demo) | Commun |
