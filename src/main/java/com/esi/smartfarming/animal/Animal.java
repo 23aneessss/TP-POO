@@ -8,7 +8,6 @@ import com.esi.smartfarming.sanitaire.EvenementSanitaire;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("unused")
 public abstract class Animal {
     private int numero;
     private String espece;
@@ -27,4 +26,28 @@ public abstract class Animal {
         this.etatSante = StatutAnimal.SAIN;
         this.evenements = new ArrayList<>();
     }
+
+    public int getNumero() { return numero; }
+    public void setNumero(int numero) { this.numero = numero; }
+
+    public String getEspece() { return espece; }
+    public void setEspece(String espece) { this.espece = espece; }
+
+    public int getAge() { return age; }
+    public void setAge(int age) { this.age = age; }
+
+    public double getPoids() { return poids; }
+    public void setPoids(double poids) { this.poids = poids; }
+
+    public StatutAnimal getEtatSante() { return etatSante; }
+    public void setEtatSante(StatutAnimal etatSante) { this.etatSante = etatSante; }
+
+    public CapteurBiometrique getCapteurBiometrique() { return capteurBiometrique; }
+    public void setCapteurBiometrique(CapteurBiometrique capteurBiometrique) { this.capteurBiometrique = capteurBiometrique; }
+
+    public CapteurGPS getCapteurGPS() { return capteurGPS; }
+    public void setCapteurGPS(CapteurGPS capteurGPS) { this.capteurGPS = capteurGPS; }
+
+    public List<EvenementSanitaire> getEvenements() { return evenements; }
+    public void setEvenements(List<EvenementSanitaire> evenements) { this.evenements = evenements; }
 }

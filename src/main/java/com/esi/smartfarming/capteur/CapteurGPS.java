@@ -7,7 +7,6 @@ import com.esi.smartfarming.zone.Zone;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("unused")
 public class CapteurGPS extends Capteur {
     private Animal animal;
     private List<ReleveGPS> historiqueGPS;
@@ -17,4 +16,10 @@ public class CapteurGPS extends Capteur {
         this.animal = animal;
         this.historiqueGPS = new ArrayList<>();
     }
+
+    public Animal getAnimal() { return animal; }
+    public void setAnimal(Animal animal) { this.animal = animal; }
+
+    public List<ReleveGPS> getHistoriqueGPS() { return historiqueGPS; }
+    public void setHistoriqueGPS(List<ReleveGPS> historiqueGPS) { this.historiqueGPS = historiqueGPS; }
 }

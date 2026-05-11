@@ -4,7 +4,6 @@ import com.esi.smartfarming.animal.Animal;
 
 import java.util.Date;
 
-@SuppressWarnings("unused")
 public class EvenementSanitaire {
     private int id;
     private Animal animal;

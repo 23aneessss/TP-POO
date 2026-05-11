@@ -5,7 +5,7 @@ import com.esi.smartfarming.enums.NiveauReleve;
 
 import java.util.Date;
 
-@SuppressWarnings("unused")
+
 public abstract class Releve {
     protected int id;
     protected Capteur capteur;
@@ -18,4 +18,16 @@ public abstract class Releve {
         this.dateHeure = dateHeure;
         this.niveau = niveau;
     }
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public Capteur getCapteur() { return capteur; }
+    public void setCapteur(Capteur capteur) { this.capteur = capteur; }
+
+    public Date getDateHeure() { return dateHeure; }
+    public void setDateHeure(Date dateHeure) { this.dateHeure = dateHeure; }
+
+    public NiveauReleve getNiveau() { return niveau; }
+    public void setNiveau(NiveauReleve niveau) { this.niveau = niveau; }
 }

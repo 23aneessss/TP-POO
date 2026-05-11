@@ -8,7 +8,7 @@ import com.esi.smartfarming.historique.HistoriqueCulture;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("unused")
+
 public class ZoneCulture extends Zone {
     private List<Culture> cultures;
     private List<CapteurEnvironnemental> capteursEnv;

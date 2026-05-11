@@ -4,7 +4,6 @@ import com.esi.smartfarming.zone.Zone;
 
 import java.util.Date;
 
-@SuppressWarnings("unused")
 public class HistoriqueOeuf extends HistoriqueProduction {
     private int nombreOeufs;
 
@@ -12,4 +11,7 @@ public class HistoriqueOeuf extends HistoriqueProduction {
         super(zone, date);
         this.nombreOeufs = nombreOeufs;
     }
+
+    public int getNombreOeufs() { return nombreOeufs; }
+    public void setNombreOeufs(int nombreOeufs) { this.nombreOeufs = nombreOeufs; }
 }

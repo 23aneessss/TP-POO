@@ -8,7 +8,7 @@ import com.esi.smartfarming.historique.HistoriqueAquacole;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("unused")
+
 public class ZoneAquacole extends Zone {
     private List<EspeceAquacole> especes;
     private List<CapteurEau> capteursEau;

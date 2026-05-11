@@ -3,7 +3,6 @@ package com.esi.smartfarming.capteur;
 import com.esi.smartfarming.animal.Animal;
 import com.esi.smartfarming.zone.Zone;
 
-@SuppressWarnings("unused")
 public class CapteurBiometrique extends CapteurNumerique {
     private Animal animal;
     private String typeCapture;
@@ -13,4 +12,10 @@ public class CapteurBiometrique extends CapteurNumerique {
         this.animal = animal;
         this.typeCapture = typeCapture;
     }
+
+    public Animal getAnimal() { return animal; }
+    public void setAnimal(Animal animal) { this.animal = animal; }
+
+    public String getTypeCapture() { return typeCapture; }
+    public void setTypeCapture(String typeCapture) { this.typeCapture = typeCapture; }
 }

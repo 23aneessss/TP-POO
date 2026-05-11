@@ -4,7 +4,6 @@ import com.esi.smartfarming.zone.Zone;
 
 import java.util.Date;
 
-@SuppressWarnings("unused")
 public class HistoriqueCulture extends HistoriqueProduction {
     private double rendement;
 
@@ -12,4 +11,7 @@ public class HistoriqueCulture extends HistoriqueProduction {
         super(zone, date);
         this.rendement = rendement;
     }
+
+    public double getRendement() { return rendement; }
+    public void setRendement(double rendement) { this.rendement = rendement; }
 }

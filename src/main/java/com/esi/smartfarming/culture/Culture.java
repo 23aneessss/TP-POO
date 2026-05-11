@@ -5,7 +5,6 @@ import com.esi.smartfarming.enums.TypeFamille;
 
 import java.util.Date;
 
-@SuppressWarnings("unused")
 public class Culture {
     private int id;
     private String nom;
@@ -31,4 +30,34 @@ public class Culture {
         this.humiditeMin = humiditeMin;
         this.humiditeMax = humiditeMax;
     }
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getNom() { return nom; }
+    public void setNom(String nom) { this.nom = nom; }
+
+    public TypeFamille getFamille() { return famille; }
+    public void setFamille(TypeFamille famille) { this.famille = famille; }
+
+    public Date getDatePlantation() { return datePlantation; }
+    public void setDatePlantation(Date datePlantation) { this.datePlantation = datePlantation; }
+
+    public Date getDateRecoltePrevu() { return dateRecoltePrevu; }
+    public void setDateRecoltePrevu(Date dateRecoltePrevu) { this.dateRecoltePrevu = dateRecoltePrevu; }
+
+    public StageCroissance getStageCroissance() { return stageCroissance; }
+    public void setStageCroissance(StageCroissance stageCroissance) { this.stageCroissance = stageCroissance; }
+
+    public double getPHMin() { return pHMin; }
+    public void setPHMin(double pHMin) { this.pHMin = pHMin; }
+
+    public double getPHMax() { return pHMax; }
+    public void setPHMax(double pHMax) { this.pHMax = pHMax; }
+
+    public double getHumiditeMin() { return humiditeMin; }
+    public void setHumiditeMin(double humiditeMin) { this.humiditeMin = humiditeMin; }
+
+    public double getHumiditeMax() { return humiditeMax; }
+    public void setHumiditeMax(double humiditeMax) { this.humiditeMax = humiditeMax; }
 }

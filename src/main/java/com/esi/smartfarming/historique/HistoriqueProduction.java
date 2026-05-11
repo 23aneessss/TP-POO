@@ -4,7 +4,6 @@ import com.esi.smartfarming.zone.Zone;
 
 import java.util.Date;
 
-@SuppressWarnings("unused")
 public abstract class HistoriqueProduction {
     protected Zone zone;
     protected Date date;
@@ -13,4 +12,10 @@ public abstract class HistoriqueProduction {
         this.zone = zone;
         this.date = date;
     }
+
+    public Zone getZone() { return zone; }
+    public void setZone(Zone zone) { this.zone = zone; }
+
+    public Date getDate() { return date; }
+    public void setDate(Date date) { this.date = date; }
 }

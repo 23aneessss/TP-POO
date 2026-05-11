@@ -4,7 +4,6 @@ import com.esi.smartfarming.zone.Zone;
 
 import java.util.Date;
 
-@SuppressWarnings("unused")
 public class HistoriqueLait extends HistoriqueProduction {
     private double quantiteLait;
 
@@ -12,4 +11,7 @@ public class HistoriqueLait extends HistoriqueProduction {
         super(zone, date);
         this.quantiteLait = quantiteLait;
     }
+
+    public double getQuantiteLait() { return quantiteLait; }
+    public void setQuantiteLait(double quantiteLait) { this.quantiteLait = quantiteLait; }
 }

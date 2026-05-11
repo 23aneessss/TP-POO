@@ -6,7 +6,7 @@ import com.esi.smartfarming.enums.NiveauReleve;
 
 import java.util.Date;
 
-@SuppressWarnings("unused")
+
 public class ReleveNumerique extends Releve {
     private double valeur;
     private String unite;

@@ -4,7 +4,6 @@ import com.esi.smartfarming.zone.Zone;
 
 import java.util.Date;
 
-@SuppressWarnings("unused")
 public class HistoriqueAquacole extends HistoriqueProduction {
     private double poidsRecolte;
 
@@ -12,4 +11,7 @@ public class HistoriqueAquacole extends HistoriqueProduction {
         super(zone, date);
         this.poidsRecolte = poidsRecolte;
     }
+
+    public double getPoidsRecolte() { return poidsRecolte; }
+    public void setPoidsRecolte(double poidsRecolte) { this.poidsRecolte = poidsRecolte; }
 }

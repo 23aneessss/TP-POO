@@ -7,7 +7,6 @@ import com.esi.smartfarming.enums.StatutZone;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("unused")
 public abstract class Zone implements Suspendable {
     protected String code;
     protected String nom;

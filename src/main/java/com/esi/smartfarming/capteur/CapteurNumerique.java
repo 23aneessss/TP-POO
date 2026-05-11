@@ -6,7 +6,6 @@ import com.esi.smartfarming.zone.Zone;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("unused")
 public abstract class CapteurNumerique extends Capteur {
     protected String unite;
     protected List<ReleveNumerique> historique;
@@ -16,4 +15,10 @@ public abstract class CapteurNumerique extends Capteur {
         this.unite = unite;
         this.historique = new ArrayList<>();
     }
+
+    public String getUnite() { return unite; }
+    public void setUnite(String unite) { this.unite = unite; }
+
+    public List<ReleveNumerique> getHistorique() { return historique; }
+    public void setHistorique(List<ReleveNumerique> historique) { this.historique = historique; }
 }
