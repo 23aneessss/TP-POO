@@ -13,5 +13,10 @@ public class HistoriqueLait extends HistoriqueProduction {
     }
 
     public double getQuantiteLait() { return quantiteLait; }
-    public void setQuantiteLait(double quantiteLait) { this.quantiteLait = quantiteLait; }
+
+    @Override
+    public void enregistrer() {
+        String nomZone = zone != null ? zone.getNom() : "N/A";
+        System.out.println("[HistoriqueLait] Zone: " + nomZone + " | Date: " + date + " | Quantite lait: " + quantiteLait + " L");
+    }
 }

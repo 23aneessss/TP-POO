@@ -14,8 +14,7 @@ public abstract class HistoriqueProduction {
     }
 
     public Zone getZone() { return zone; }
-    public void setZone(Zone zone) { this.zone = zone; }
-
     public Date getDate() { return date; }
-    public void setDate(Date date) { this.date = date; }
+
+    public abstract void enregistrer();
 }

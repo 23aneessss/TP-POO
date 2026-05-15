@@ -1,6 +1,10 @@
 package com.esi.smartfarming.capteur;
 
+import com.esi.smartfarming.enums.NiveauReleve;
+import com.esi.smartfarming.releve.ReleveNumerique;
 import com.esi.smartfarming.zone.Zone;
+
+import java.util.Date;
 
 public class CapteurSol extends CapteurNumerique {
     private String typeCapture;
@@ -11,5 +15,13 @@ public class CapteurSol extends CapteurNumerique {
     }
 
     public String getTypeCapture() { return typeCapture; }
-    public void setTypeCapture(String typeCapture) { this.typeCapture = typeCapture; }
+
+    @Override
+    public ReleveNumerique envoyerReleve() {
+        double valeur = (seuilMin + seuilMax) / 2.0;
+        NiveauReleve niveau = verifierSeuil(valeur) ? NiveauReleve.NORMAL : NiveauReleve.AVERTISSEMENT;
+        ReleveNumerique releve = new ReleveNumerique(historique.size() + 1, this, new Date(), niveau, valeur, unite, this);
+        historique.add(releve);
+        return releve;
+    }
 }

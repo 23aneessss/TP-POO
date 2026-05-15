@@ -6,7 +6,6 @@ import com.esi.smartfarming.enums.NiveauReleve;
 
 import java.util.Date;
 
-
 public class ReleveNumerique extends Releve {
     private double valeur;
     private String unite;
@@ -18,4 +17,8 @@ public class ReleveNumerique extends Releve {
         this.unite = unite;
         this.capteurNumerique = capteurNumerique;
     }
+
+    public double getValeur() { return valeur; }
+    public String getUnite() { return unite; }
+    public CapteurNumerique getCapteurNumerique() { return capteurNumerique; }
 }

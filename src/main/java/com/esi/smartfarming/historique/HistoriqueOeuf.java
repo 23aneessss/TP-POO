@@ -13,5 +13,10 @@ public class HistoriqueOeuf extends HistoriqueProduction {
     }
 
     public int getNombreOeufs() { return nombreOeufs; }
-    public void setNombreOeufs(int nombreOeufs) { this.nombreOeufs = nombreOeufs; }
+
+    @Override
+    public void enregistrer() {
+        String nomZone = zone != null ? zone.getNom() : "N/A";
+        System.out.println("[HistoriqueOeuf] Zone: " + nomZone + " | Date: " + date + " | Nombre d'oeufs: " + nombreOeufs);
+    }
 }

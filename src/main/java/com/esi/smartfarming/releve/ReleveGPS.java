@@ -6,7 +6,6 @@ import com.esi.smartfarming.enums.NiveauReleve;
 
 import java.util.Date;
 
-
 public class ReleveGPS extends Releve {
     private double latitude;
     private double longitude;
@@ -18,4 +17,8 @@ public class ReleveGPS extends Releve {
         this.longitude = longitude;
         this.capteurGPS = capteurGPS;
     }
+
+    public double getLatitude() { return latitude; }
+    public double getLongitude() { return longitude; }
+    public CapteurGPS getCapteurGPS() { return capteurGPS; }
 }

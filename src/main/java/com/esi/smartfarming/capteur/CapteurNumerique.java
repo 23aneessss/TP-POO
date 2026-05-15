@@ -17,8 +17,11 @@ public abstract class CapteurNumerique extends Capteur {
     }
 
     public String getUnite() { return unite; }
-    public void setUnite(String unite) { this.unite = unite; }
-
     public List<ReleveNumerique> getHistorique() { return historique; }
-    public void setHistorique(List<ReleveNumerique> historique) { this.historique = historique; }
+
+    public boolean verifierSeuil(double valeur) {
+        return valeur >= seuilMin && valeur <= seuilMax;
+    }
+
+    public abstract ReleveNumerique envoyerReleve();
 }

@@ -222,22 +222,30 @@ abstract class CapteurNumerique {
 }
 
 class CapteurEnvironnemental {
-  -typeCapture : String
+  -temprature : Float
+  -humidite: Float
+  -pluviometrie: Float 
   +envoyerReleve() : ReleveNumerique
 }
 
 class CapteurSol {
-  -typeCapture : String
+  -ph : Float
+  -humidite : Float
+  -teneurAzote: Float
   +envoyerReleve() : ReleveNumerique
 }
 
 class CapteurBiometrique {
   -animal : Animal
-  -typeCapture : String
+  -temperatureCorporelle : Float
+  -niveauActivite: Float
   +envoyerReleve() : ReleveNumerique
 }
 
 class CapteurEau {
+  -temperateur: Float 
+  -oxygene: Float
+  -ph:Float
   -typeCapture : String
   +envoyerReleve() : ReleveNumerique
 }

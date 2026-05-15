@@ -13,5 +13,10 @@ public class HistoriqueAquacole extends HistoriqueProduction {
     }
 
     public double getPoidsRecolte() { return poidsRecolte; }
-    public void setPoidsRecolte(double poidsRecolte) { this.poidsRecolte = poidsRecolte; }
+
+    @Override
+    public void enregistrer() {
+        String nomZone = zone != null ? zone.getNom() : "N/A";
+        System.out.println("[HistoriqueAquacole] Zone: " + nomZone + " | Date: " + date + " | Poids recolte: " + poidsRecolte + " kg");
+    }
 }

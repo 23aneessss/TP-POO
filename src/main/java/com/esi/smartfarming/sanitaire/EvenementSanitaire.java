@@ -18,4 +18,10 @@ public class EvenementSanitaire {
         this.date = date;
         this.nouveauPoids = nouveauPoids;
     }
+
+    public int getId() { return id; }
+    public Animal getAnimal() { return animal; }
+    public String getDescription() { return description; }
+    public Date getDate() { return date; }
+    public double getNouveauPoids() { return nouveauPoids; }
 }

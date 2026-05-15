@@ -13,5 +13,10 @@ public class HistoriqueCulture extends HistoriqueProduction {
     }
 
     public double getRendement() { return rendement; }
-    public void setRendement(double rendement) { this.rendement = rendement; }
+
+    @Override
+    public void enregistrer() {
+        String nomZone = zone != null ? zone.getNom() : "N/A";
+        System.out.println("[HistoriqueCulture] Zone: " + nomZone + " | Date: " + date + " | Rendement: " + rendement + " t/ha");
+    }
 }
