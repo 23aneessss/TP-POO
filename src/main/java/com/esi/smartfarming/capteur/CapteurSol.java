@@ -7,20 +7,31 @@ import com.esi.smartfarming.zone.Zone;
 import java.util.Date;
 
 public class CapteurSol extends CapteurNumerique {
-    private String typeCapture;
+    private float ph;
+    private float humidite;
+    private float teneurAzote;
 
-    public CapteurSol(String code, Zone zone, double seuilMin, double seuilMax, String unite, String typeCapture) {
+    public CapteurSol(String code, Zone zone, double seuilMin, double seuilMax, String unite,
+                      float ph, float humidite, float teneurAzote) {
         super(code, zone, seuilMin, seuilMax, unite);
-        this.typeCapture = typeCapture;
+        this.ph = ph;
+        this.humidite = humidite;
+        this.teneurAzote = teneurAzote;
     }
 
-    public String getTypeCapture() { return typeCapture; }
+    public float getPh() { return ph; }
+    public void setPh(float ph) { this.ph = ph; }
+
+    public float getHumidite() { return humidite; }
+    public void setHumidite(float humidite) { this.humidite = humidite; }
+
+    public float getTeneurAzote() { return teneurAzote; }
+    public void setTeneurAzote(float teneurAzote) { this.teneurAzote = teneurAzote; }
 
     @Override
     public ReleveNumerique envoyerReleve() {
-        double valeur = (seuilMin + seuilMax) / 2.0;
-        NiveauReleve niveau = verifierSeuil(valeur) ? NiveauReleve.NORMAL : NiveauReleve.AVERTISSEMENT;
-        ReleveNumerique releve = new ReleveNumerique(historique.size() + 1, this, new Date(), niveau, valeur, unite, this);
+        NiveauReleve niveau = verifierSeuil(ph) ? NiveauReleve.NORMAL : NiveauReleve.AVERTISSEMENT;
+        ReleveNumerique releve = new ReleveNumerique(historique.size() + 1, this, new Date(), niveau, ph, unite, this);
         historique.add(releve);
         return releve;
     }
