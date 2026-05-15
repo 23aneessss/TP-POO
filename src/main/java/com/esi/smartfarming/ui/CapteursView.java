@@ -1,7 +1,5 @@
 package com.esi.smartfarming.ui;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -101,6 +99,7 @@ public class CapteursView {
         return panel;
     }
 
+    @SuppressWarnings("unchecked")
     private LineChart<String, Number> buildChart() {
         CategoryAxis xAxis = new CategoryAxis();
         xAxis.setLabel("Heure");

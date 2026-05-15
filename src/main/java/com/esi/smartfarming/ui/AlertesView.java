@@ -89,9 +89,10 @@ public class AlertesView {
 
     // ── Table ───────────────────────────────────────────────────────────────────
 
+    @SuppressWarnings("unchecked")
     private TableView<String[]> buildTable() {
         TableView<String[]> table = new TableView<>(filteredData);
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         VBox.setVgrow(table, Priority.ALWAYS);
 
         // Colonnes

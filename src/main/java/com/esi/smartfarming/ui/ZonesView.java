@@ -87,9 +87,10 @@ public class ZonesView {
 
     // ── Tables ──────────────────────────────────────────────────────────────────
 
+    @SuppressWarnings("unchecked")
     private TableView<String[]> cultureTable() {
         TableView<String[]> t = new TableView<>(FXCollections.observableArrayList(DummyData.CULTURES));
-        t.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        t.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         t.setMaxHeight(130);
 
         t.getColumns().addAll(
@@ -104,9 +105,10 @@ public class ZonesView {
         return t;
     }
 
+    @SuppressWarnings("unchecked")
     private TableView<String[]> animauxTable() {
         TableView<String[]> t = new TableView<>(FXCollections.observableArrayList(DummyData.ANIMAUX));
-        t.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        t.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         t.setMaxHeight(180);
 
         t.getColumns().addAll(
@@ -120,13 +122,14 @@ public class ZonesView {
         return t;
     }
 
+    @SuppressWarnings("unchecked")
     private TableView<String[]> capteurTable(String zone) {
         List<String[]> filtered = new ArrayList<>();
         for (String[] c : DummyData.CAPTEURS) {
             if (zone.equals(c[2])) filtered.add(c);
         }
         TableView<String[]> t = new TableView<>(FXCollections.observableArrayList(filtered));
-        t.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        t.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         t.setMaxHeight(160);
 
         t.getColumns().addAll(
