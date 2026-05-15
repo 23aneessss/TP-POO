@@ -1,4 +1,4 @@
-@startuml
+@startuml SmartFarming
 skinparam classAttributeIconSize 0
 
 ' =========================
@@ -326,6 +326,7 @@ class Alerte {
   -niveauGravite : NiveauGravite
   -dateHeure : Date
   -acquittee : boolean
+  -supprimee : boolean
 
   +getId() : int
   +getReleve() : Releve
@@ -334,6 +335,7 @@ class Alerte {
   +acquitter() : void
   +supprimer() : void
   +isAcquittee() : boolean
+  +isSupprimee() : boolean
 }
 
 ' =========================
