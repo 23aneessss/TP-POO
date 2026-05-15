@@ -7,9 +7,9 @@ package com.esi.smartfarming.ui;
  * 2. Extraire dans ~/javafx-sdk/
  * 3. Compiler :
  *    export FX=~/javafx-sdk/lib
- *    find src -name "*.java" | xargs javac --module-path $FX --add-modules javafx.controls,javafx.charts -d out
+ *    find src -name "*.java" | xargs javac --module-path $FX --add-modules javafx.controls -d out
  * 4. Executer :
- *    java --module-path $FX --add-modules javafx.controls,javafx.charts -cp out com.esi.smartfarming.ui.SmartFarmingApp
+ *    java --module-path $FX --add-modules javafx.controls -cp out com.esi.smartfarming.ui.SmartFarmingApp
  */
 
 import javafx.application.Application;
