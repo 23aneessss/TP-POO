@@ -7,26 +7,26 @@ import com.esi.smartfarming.zone.Zone;
 import java.util.Date;
 
 public class CapteurEnvironnemental extends CapteurNumerique {
-    private float temperature;
-    private float humidite;
-    private float pluviometrie;
+    private double temperature;
+    private double humidite;
+    private double pluviometrie;
 
     public CapteurEnvironnemental(String code, Zone zone, double seuilMin, double seuilMax, String unite,
-                                   float temperature, float humidite, float pluviometrie) {
+                                   double temperature, double humidite, double pluviometrie) {
         super(code, zone, seuilMin, seuilMax, unite);
         this.temperature = temperature;
         this.humidite = humidite;
         this.pluviometrie = pluviometrie;
     }
 
-    public float getTemperature() { return temperature; }
-    public void setTemperature(float temperature) { this.temperature = temperature; }
+    public double getTemperature() { return temperature; }
+    public void setTemperature(double temperature) { this.temperature = temperature; }
 
-    public float getHumidite() { return humidite; }
-    public void setHumidite(float humidite) { this.humidite = humidite; }
+    public double getHumidite() { return humidite; }
+    public void setHumidite(double humidite) { this.humidite = humidite; }
 
-    public float getPluviometrie() { return pluviometrie; }
-    public void setPluviometrie(float pluviometrie) { this.pluviometrie = pluviometrie; }
+    public double getPluviometrie() { return pluviometrie; }
+    public void setPluviometrie(double pluviometrie) { this.pluviometrie = pluviometrie; }
 
     @Override
     public ReleveNumerique envoyerReleve() {

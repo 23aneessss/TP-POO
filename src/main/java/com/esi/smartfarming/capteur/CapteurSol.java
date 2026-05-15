@@ -7,26 +7,26 @@ import com.esi.smartfarming.zone.Zone;
 import java.util.Date;
 
 public class CapteurSol extends CapteurNumerique {
-    private float ph;
-    private float humidite;
-    private float teneurAzote;
+    private double ph;
+    private double humidite;
+    private double teneurAzote;
 
     public CapteurSol(String code, Zone zone, double seuilMin, double seuilMax, String unite,
-                      float ph, float humidite, float teneurAzote) {
+                      double ph, double humidite, double teneurAzote) {
         super(code, zone, seuilMin, seuilMax, unite);
         this.ph = ph;
         this.humidite = humidite;
         this.teneurAzote = teneurAzote;
     }
 
-    public float getPh() { return ph; }
-    public void setPh(float ph) { this.ph = ph; }
+    public double getPh() { return ph; }
+    public void setPh(double ph) { this.ph = ph; }
 
-    public float getHumidite() { return humidite; }
-    public void setHumidite(float humidite) { this.humidite = humidite; }
+    public double getHumidite() { return humidite; }
+    public void setHumidite(double humidite) { this.humidite = humidite; }
 
-    public float getTeneurAzote() { return teneurAzote; }
-    public void setTeneurAzote(float teneurAzote) { this.teneurAzote = teneurAzote; }
+    public double getTeneurAzote() { return teneurAzote; }
+    public void setTeneurAzote(double teneurAzote) { this.teneurAzote = teneurAzote; }
 
     @Override
     public ReleveNumerique envoyerReleve() {

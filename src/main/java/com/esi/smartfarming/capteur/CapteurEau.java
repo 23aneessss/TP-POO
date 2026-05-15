@@ -7,13 +7,13 @@ import com.esi.smartfarming.zone.Zone;
 import java.util.Date;
 
 public class CapteurEau extends CapteurNumerique {
-    private float temperateur;
-    private float oxygene;
-    private float ph;
+    private double temperateur;
+    private double oxygene;
+    private double ph;
     private String typeCapture;
 
     public CapteurEau(String code, Zone zone, double seuilMin, double seuilMax, String unite,
-                      float temperateur, float oxygene, float ph, String typeCapture) {
+                      double temperateur, double oxygene, double ph, String typeCapture) {
         super(code, zone, seuilMin, seuilMax, unite);
         this.temperateur = temperateur;
         this.oxygene = oxygene;
@@ -21,14 +21,14 @@ public class CapteurEau extends CapteurNumerique {
         this.typeCapture = typeCapture;
     }
 
-    public float getTemperateur() { return temperateur; }
-    public void setTemperateur(float temperateur) { this.temperateur = temperateur; }
+    public double getTemperateur() { return temperateur; }
+    public void setTemperateur(double temperateur) { this.temperateur = temperateur; }
 
-    public float getOxygene() { return oxygene; }
-    public void setOxygene(float oxygene) { this.oxygene = oxygene; }
+    public double getOxygene() { return oxygene; }
+    public void setOxygene(double oxygene) { this.oxygene = oxygene; }
 
-    public float getPh() { return ph; }
-    public void setPh(float ph) { this.ph = ph; }
+    public double getPh() { return ph; }
+    public void setPh(double ph) { this.ph = ph; }
 
     public String getTypeCapture() { return typeCapture; }
     public void setTypeCapture(String typeCapture) { this.typeCapture = typeCapture; }

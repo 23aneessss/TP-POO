@@ -9,11 +9,11 @@ import java.util.Date;
 
 public class CapteurBiometrique extends CapteurNumerique {
     private Animal animal;
-    private float temperatureCorporelle;
-    private float niveauActivite;
+    private double temperatureCorporelle;
+    private double niveauActivite;
 
     public CapteurBiometrique(String code, Zone zone, double seuilMin, double seuilMax, String unite,
-                               Animal animal, float temperatureCorporelle, float niveauActivite) {
+                               Animal animal, double temperatureCorporelle, double niveauActivite) {
         super(code, zone, seuilMin, seuilMax, unite);
         this.animal = animal;
         this.temperatureCorporelle = temperatureCorporelle;
@@ -23,11 +23,11 @@ public class CapteurBiometrique extends CapteurNumerique {
     public Animal getAnimal() { return animal; }
     public void setAnimal(Animal animal) { this.animal = animal; }
 
-    public float getTemperatureCorporelle() { return temperatureCorporelle; }
-    public void setTemperatureCorporelle(float temperatureCorporelle) { this.temperatureCorporelle = temperatureCorporelle; }
+    public double getTemperatureCorporelle() { return temperatureCorporelle; }
+    public void setTemperatureCorporelle(double temperatureCorporelle) { this.temperatureCorporelle = temperatureCorporelle; }
 
-    public float getNiveauActivite() { return niveauActivite; }
-    public void setNiveauActivite(float niveauActivite) { this.niveauActivite = niveauActivite; }
+    public double getNiveauActivite() { return niveauActivite; }
+    public void setNiveauActivite(double niveauActivite) { this.niveauActivite = niveauActivite; }
 
     @Override
     public ReleveNumerique envoyerReleve() {
