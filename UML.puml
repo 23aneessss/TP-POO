@@ -222,31 +222,42 @@ abstract class CapteurNumerique {
 }
 
 class CapteurEnvironnemental {
-  -temprature : Float
-  -humidite: Float
-  -pluviometrie: Float 
+  -temperature : float
+  -humidite : float
+  -pluviometrie : float
+  +getTemperature() : float
+  +getHumidite() : float
+  +getPluviometrie() : float
   +envoyerReleve() : ReleveNumerique
 }
 
 class CapteurSol {
-  -ph : Float
-  -humidite : Float
-  -teneurAzote: Float
+  -ph : float
+  -humidite : float
+  -teneurAzote : float
+  +getPh() : float
+  +getHumidite() : float
+  +getTeneurAzote() : float
   +envoyerReleve() : ReleveNumerique
 }
 
 class CapteurBiometrique {
   -animal : Animal
-  -temperatureCorporelle : Float
-  -niveauActivite: Float
+  -temperatureCorporelle : float
+  -niveauActivite : float
+  +getTemperatureCorporelle() : float
+  +getNiveauActivite() : float
   +envoyerReleve() : ReleveNumerique
 }
 
 class CapteurEau {
-  -temperateur: Float 
-  -oxygene: Float
-  -ph:Float
+  -temperateur : float
+  -oxygene : float
+  -ph : float
   -typeCapture : String
+  +getTemperateur() : float
+  +getOxygene() : float
+  +getPh() : float
   +envoyerReleve() : ReleveNumerique
 }
 
