@@ -52,6 +52,8 @@
 | `historique` | HistoriqueCulture |
 | `ajouterCulture(c : Culture)` | void |
 | `getCultures()` | List\<Culture\> |
+| `ajouterCapteurEnv(c : CapteurEnvironnemental)` | void |
+| `ajouterCapteurSol(c : CapteurSol)` | void |
 | `genererRapportCultures()` | String |
 | `enregistrerRendement(valeur : double, date : Date)` | void |
 | `getHistorique()` | HistoriqueProduction |
@@ -78,6 +80,7 @@
 | `historique` | HistoriqueAquacole |
 | `ajouterEspece(e : EspeceAquacole)` | void |
 | `getEspeces()` | List\<EspeceAquacole\> |
+| `ajouterCapteurEau(c : CapteurEau)` | void |
 | `setProgrammeAlimentation(p)` | void |
 | `getProgrammeAlimentation()` | ProgrammeAlimentation |
 | `getHistorique()` | HistoriqueProduction |
@@ -186,26 +189,45 @@
 ### `CapteurEnvironnemental` extends CapteurNumerique
 | Element | Type |
 |---|---|
-| `typeCapture` | String |
+| `temperature` | double |
+| `humidite` | double |
+| `pluviometrie` | double |
+| `getTemperature()` | double |
+| `getHumidite()` | double |
+| `getPluviometrie()` | double |
 | `envoyerReleve()` | ReleveNumerique |
 
 ### `CapteurSol` extends CapteurNumerique
 | Element | Type |
 |---|---|
-| `typeCapture` | String |
+| `ph` | double |
+| `humidite` | double |
+| `teneurAzote` | double |
+| `getPh()` | double |
+| `getHumidite()` | double |
+| `getTeneurAzote()` | double |
 | `envoyerReleve()` | ReleveNumerique |
 
 ### `CapteurBiometrique` extends CapteurNumerique
 | Element | Type |
 |---|---|
 | `animal` | Animal |
-| `typeCapture` | String |
+| `temperatureCorporelle` | double |
+| `niveauActivite` | double |
+| `getTemperatureCorporelle()` | double |
+| `getNiveauActivite()` | double |
 | `envoyerReleve()` | ReleveNumerique |
 
 ### `CapteurEau` extends CapteurNumerique
 | Element | Type |
 |---|---|
+| `temperateur` | double |
+| `oxygene` | double |
+| `ph` | double |
 | `typeCapture` | String |
+| `getTemperateur()` | double |
+| `getOxygene()` | double |
+| `getPh()` | double |
 | `envoyerReleve()` | ReleveNumerique |
 
 ### `CapteurGPS` extends Capteur

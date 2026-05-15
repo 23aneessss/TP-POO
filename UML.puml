@@ -83,6 +83,8 @@ class ZoneCulture {
 
   +ajouterCulture(c : Culture) : void
   +getCultures() : List<Culture>
+  +ajouterCapteurEnv(c : CapteurEnvironnemental) : void
+  +ajouterCapteurSol(c : CapteurSol) : void
   +genererRapportCultures() : String
   +enregistrerRendement(valeur : double, date : Date) : void
   +getHistorique() : HistoriqueProduction
@@ -109,6 +111,7 @@ class ZoneAquacole {
 
   +ajouterEspece(e : EspeceAquacole) : void
   +getEspeces() : List<EspeceAquacole>
+  +ajouterCapteurEau(c : CapteurEau) : void
   +setProgrammeAlimentation(p : ProgrammeAlimentation) : void
   +getProgrammeAlimentation() : ProgrammeAlimentation
   +getHistorique() : HistoriqueProduction
@@ -222,42 +225,42 @@ abstract class CapteurNumerique {
 }
 
 class CapteurEnvironnemental {
-  -temperature : float
-  -humidite : float
-  -pluviometrie : float
-  +getTemperature() : float
-  +getHumidite() : float
-  +getPluviometrie() : float
+  -temperature : double
+  -humidite : double
+  -pluviometrie : double
+  +getTemperature() : double
+  +getHumidite() : double
+  +getPluviometrie() : double
   +envoyerReleve() : ReleveNumerique
 }
 
 class CapteurSol {
-  -ph : float
-  -humidite : float
-  -teneurAzote : float
-  +getPh() : float
-  +getHumidite() : float
-  +getTeneurAzote() : float
+  -ph : double
+  -humidite : double
+  -teneurAzote : double
+  +getPh() : double
+  +getHumidite() : double
+  +getTeneurAzote() : double
   +envoyerReleve() : ReleveNumerique
 }
 
 class CapteurBiometrique {
   -animal : Animal
-  -temperatureCorporelle : float
-  -niveauActivite : float
-  +getTemperatureCorporelle() : float
-  +getNiveauActivite() : float
+  -temperatureCorporelle : double
+  -niveauActivite : double
+  +getTemperatureCorporelle() : double
+  +getNiveauActivite() : double
   +envoyerReleve() : ReleveNumerique
 }
 
 class CapteurEau {
-  -temperateur : float
-  -oxygene : float
-  -ph : float
+  -temperateur : double
+  -oxygene : double
+  -ph : double
   -typeCapture : String
-  +getTemperateur() : float
-  +getOxygene() : float
-  +getPh() : float
+  +getTemperateur() : double
+  +getOxygene() : double
+  +getPh() : double
   +envoyerReleve() : ReleveNumerique
 }
 
