@@ -75,28 +75,30 @@ public class Main {
     static void menuCulture(ZoneCulture zone) {
         boolean back = false;
         while (!back) {
-            titre("ZONE CULTURE : " + zone.getNom());
-            System.out.println("  1. Ajouter une culture");
-            System.out.println("  2. Changer le stade d'une culture");
-            System.out.println("  3. Ajouter capteur environnemental");
-            System.out.println("  4. Ajouter capteur sol");
-            System.out.println("  5. Envoyer releves des capteurs");
-            System.out.println("  6. Enregistrer un rendement");
-            System.out.println("  7. Rapport des cultures");
-            System.out.println("  8. Suspendre / Activer la zone");
-            System.out.println("  9. Retour");
+            titre("ZONE CULTURE : " + zone.getNom() + "  [" + zone.getStatut() + "]");
+            System.out.println("  1. Afficher cultures");
+            System.out.println("  2. Afficher capteurs");
+            System.out.println("  3. Ajouter une culture");
+            System.out.println("  4. Changer le stade d'une culture");
+            System.out.println("  5. Ajouter capteur environnemental");
+            System.out.println("  6. Ajouter capteur sol");
+            System.out.println("  7. Envoyer releves des capteurs");
+            System.out.println("  8. Enregistrer un rendement");
+            System.out.println("  9. Suspendre / Activer la zone");
+            System.out.println("  0. Retour");
             System.out.print("Choix : ");
 
             switch (lireInt()) {
-                case 1: ajouterCulture(zone); break;
-                case 2: changerStageCulture(zone); break;
-                case 3: ajouterCapteurEnv(zone); break;
-                case 4: ajouterCapteurSol(zone); break;
-                case 5: envoyerRelevesCulture(zone); break;
-                case 6: enregistrerRendement(zone); break;
-                case 7: System.out.println(zone.genererRapportCultures()); break;
-                case 8: toggleZone(zone); break;
-                case 9: back = true; break;
+                case 1: afficherDetailsCultures(zone); break;
+                case 2: afficherDetailsCapteurs(zone); break;
+                case 3: ajouterCulture(zone); break;
+                case 4: changerStageCulture(zone); break;
+                case 5: ajouterCapteurEnv(zone); break;
+                case 6: ajouterCapteurSol(zone); break;
+                case 7: envoyerRelevesCulture(zone); break;
+                case 8: enregistrerRendement(zone); break;
+                case 9: toggleZone(zone); break;
+                case 0: back = true; break;
                 default: System.out.println("Choix invalide.");
             }
         }
@@ -189,6 +191,39 @@ public class Main {
         zone.enregistrerRendement(v, new Date());
     }
 
+    static void afficherDetailsCultures(ZoneCulture zone) {
+        sousTitre("CULTURES DE [" + zone.getNom() + "]");
+        if (zone.getCultures().isEmpty()) { System.out.println("  Aucune culture."); return; }
+        int i = 1;
+        for (Culture c : zone.getCultures()) {
+            System.out.println("  " + i++ + ". " + c.getNom());
+            System.out.println("     Famille     : " + c.getFamille());
+            System.out.println("     Stade       : " + c.getStageCroissance());
+            System.out.println("     Exigences   : " + c.getExigencesPedologiques());
+        }
+    }
+
+    static void afficherDetailsCapteurs(ZoneCulture zone) {
+        sousTitre("CAPTEURS DE [" + zone.getNom() + "]");
+        if (zone.getCapteurs().isEmpty()) { System.out.println("  Aucun capteur."); return; }
+        int i = 1;
+        for (var cap : zone.getCapteurs()) {
+            System.out.println("  " + i++ + ". [" + cap.getCode() + "] " + cap.getClass().getSimpleName() + " | " + cap.getStatut());
+            System.out.println("     Seuils : " + cap.getSeuilMin() + " - " + cap.getSeuilMax());
+            if (cap instanceof CapteurEnvironnemental ce) {
+                System.out.println("     Temperature   : " + ce.getTemperature() + " °C");
+                System.out.println("     Humidite      : " + ce.getHumidite() + " %");
+                System.out.println("     Pluviometrie  : " + ce.getPluviometrie() + " mm");
+            } else if (cap instanceof CapteurSol cs) {
+                System.out.println("     pH            : " + cs.getPh());
+                System.out.println("     Humidite sol  : " + cs.getHumidite() + " %");
+                System.out.println("     Azote         : " + cs.getTeneurAzote() + " mg/kg");
+            }
+            if (cap instanceof CapteurNumerique cn)
+                System.out.println("     Releves enregistres : " + cn.getHistorique().size());
+        }
+    }
+
     // =========================================================================
     // ZONE ELEVAGE
     // =========================================================================
@@ -196,28 +231,28 @@ public class Main {
     static void menuElevage(ZoneElevage zone) {
         boolean back = false;
         while (!back) {
-            titre("ZONE ELEVAGE : " + zone.getNom());
-            System.out.println("  1. Ajouter un animal (Ruminant ou Volaille)");
-            System.out.println("  2. Enregistrer une production");
-            System.out.println("  3. Ajouter un evenement sanitaire");
-            System.out.println("  4. Verifier les limites de capacite");
-            System.out.println("  5. Ajouter capteur biometrique a un animal");
-            System.out.println("  6. Ajouter capteur GPS a un animal");
-            System.out.println("  7. Afficher les animaux");
+            titre("ZONE ELEVAGE : " + zone.getNom() + "  [" + zone.getStatut() + "]");
+            System.out.println("  1. Afficher animaux (details)");
+            System.out.println("  2. Ajouter un animal (Ruminant ou Volaille)");
+            System.out.println("  3. Enregistrer une production");
+            System.out.println("  4. Ajouter un evenement sanitaire");
+            System.out.println("  5. Verifier les limites de capacite");
+            System.out.println("  6. Ajouter capteur biometrique a un animal");
+            System.out.println("  7. Ajouter capteur GPS a un animal");
             System.out.println("  8. Suspendre / Activer la zone");
-            System.out.println("  9. Retour");
+            System.out.println("  0. Retour");
             System.out.print("Choix : ");
 
             switch (lireInt()) {
-                case 1: ajouterAnimal(zone); break;
-                case 2: enregistrerProduction(zone); break;
-                case 3: ajouterEvenementSanitaire(zone); break;
-                case 4: verifierLimites(zone); break;
-                case 5: ajouterCapteurBio(zone); break;
-                case 6: ajouterCapteurGPS(zone); break;
-                case 7: afficherAnimaux(zone); break;
+                case 1: afficherDetailsAnimaux(zone); break;
+                case 2: ajouterAnimal(zone); break;
+                case 3: enregistrerProduction(zone); break;
+                case 4: ajouterEvenementSanitaire(zone); break;
+                case 5: verifierLimites(zone); break;
+                case 6: ajouterCapteurBio(zone); break;
+                case 7: ajouterCapteurGPS(zone); break;
                 case 8: toggleZone(zone); break;
-                case 9: back = true; break;
+                case 0: back = true; break;
                 default: System.out.println("Choix invalide.");
             }
         }
@@ -328,12 +363,57 @@ public class Main {
 
     static void afficherAnimaux(ZoneElevage zone) {
         if (zone.getAnimaux().isEmpty()) { System.out.println("  Aucun animal."); return; }
-        System.out.println("Animaux (" + zone.getAnimaux().size() + ") :");
         int i = 1;
         for (var a : zone.getAnimaux()) {
             String type = (a instanceof Ruminant) ? "Ruminant" : "Volaille";
             System.out.println("  " + i++ + ". #" + a.getNumero() + " " + a.getEspece()
                     + " [" + type + "] | " + a.getPoids() + "kg | " + a.getEtatSante());
+        }
+    }
+
+    static void afficherDetailsAnimaux(ZoneElevage zone) {
+        sousTitre("ANIMAUX DE [" + zone.getNom() + "]");
+        System.out.println("  Programme alimentation : "
+                + zone.getProgrammeAlimentation().getTypeAliment()
+                + " | " + zone.getProgrammeAlimentation().getQuantiteParRepas() + " kg/repas");
+        if (zone.getAnimaux().isEmpty()) { System.out.println("  Aucun animal."); return; }
+        int i = 1;
+        for (var a : zone.getAnimaux()) {
+            String type = (a instanceof Ruminant) ? "Ruminant" : "Volaille";
+            System.out.println("\n  " + i++ + ". " + type + " #" + a.getNumero() + " - " + a.getEspece());
+            System.out.println("     Age         : " + a.getAge() + " an(s)");
+            System.out.println("     Poids       : " + a.getPoids() + " kg");
+            System.out.println("     Etat sante  : " + a.getEtatSante());
+            if (a.getCapteurBiometrique() != null) {
+                var cb = a.getCapteurBiometrique();
+                String dernierNiveau = cb.getHistorique().isEmpty() ? "N/A"
+                        : cb.getHistorique().get(cb.getHistorique().size()-1).getNiveau().toString();
+                System.out.println("     Capteur bio : [" + cb.getCode() + "] "
+                        + cb.getTemperatureCorporelle() + cb.getUnite()
+                        + " | activite=" + cb.getNiveauActivite()
+                        + " | dernier releve=" + dernierNiveau);
+            } else {
+                System.out.println("     Capteur bio : aucun");
+            }
+            if (a.getCapteurGPS() != null) {
+                var cg = a.getCapteurGPS();
+                if (!cg.getHistoriqueGPS().isEmpty()) {
+                    var last = cg.getHistoriqueGPS().get(cg.getHistoriqueGPS().size()-1);
+                    System.out.printf("     Capteur GPS : [%s] lat=%.5f lon=%.5f%n",
+                            cg.getCode(), last.getLatitude(), last.getLongitude());
+                } else {
+                    System.out.println("     Capteur GPS : [" + cg.getCode() + "] aucun releve");
+                }
+            } else {
+                System.out.println("     Capteur GPS : aucun");
+            }
+            if (a.getEvenements().isEmpty()) {
+                System.out.println("     Evenements  : aucun");
+            } else {
+                System.out.println("     Evenements  : " + a.getEvenements().size());
+                for (var ev : a.getEvenements())
+                    System.out.println("       - " + ev.getDescription() + " (" + ev.getNouveauPoids() + " kg)");
+            }
         }
     }
 
@@ -344,24 +424,24 @@ public class Main {
     static void menuAquacole(ZoneAquacole zone) {
         boolean back = false;
         while (!back) {
-            titre("ZONE AQUACOLE : " + zone.getNom());
-            System.out.println("  1. Ajouter une espece aquacole");
-            System.out.println("  2. Ajouter capteur eau");
-            System.out.println("  3. Envoyer releves des capteurs");
-            System.out.println("  4. Modifier programme alimentation");
-            System.out.println("  5. Afficher especes");
+            titre("ZONE AQUACOLE : " + zone.getNom() + "  [" + zone.getStatut() + "]");
+            System.out.println("  1. Afficher details (especes + capteurs)");
+            System.out.println("  2. Ajouter une espece aquacole");
+            System.out.println("  3. Ajouter capteur eau");
+            System.out.println("  4. Envoyer releves des capteurs");
+            System.out.println("  5. Modifier programme alimentation");
             System.out.println("  6. Suspendre / Activer la zone");
-            System.out.println("  7. Retour");
+            System.out.println("  0. Retour");
             System.out.print("Choix : ");
 
             switch (lireInt()) {
-                case 1: ajouterEspece(zone); break;
-                case 2: ajouterCapteurEau(zone); break;
-                case 3: envoyerRelevesAquacole(zone); break;
-                case 4: modifierProgAlimentation(zone); break;
-                case 5: afficherEspeces(zone); break;
+                case 1: afficherDetailsAquacole(zone); break;
+                case 2: ajouterEspece(zone); break;
+                case 3: ajouterCapteurEau(zone); break;
+                case 4: envoyerRelevesAquacole(zone); break;
+                case 5: modifierProgAlimentation(zone); break;
                 case 6: toggleZone(zone); break;
-                case 7: back = true; break;
+                case 0: back = true; break;
                 default: System.out.println("Choix invalide.");
             }
         }
@@ -409,11 +489,36 @@ public class Main {
         System.out.println("Programme mis a jour.");
     }
 
-    static void afficherEspeces(ZoneAquacole zone) {
-        if (zone.getEspeces().isEmpty()) { System.out.println("  Aucune espece."); return; }
-        System.out.println("Especes (" + zone.getEspeces().size() + ") :");
-        for (var e : zone.getEspeces())
-            System.out.println("  " + e.getId() + ". " + e.getEspece() + " | " + e.getNombre() + " individus");
+    static void afficherDetailsAquacole(ZoneAquacole zone) {
+        sousTitre("DETAILS ZONE [" + zone.getNom() + "]");
+        var prog = zone.getProgrammeAlimentation();
+        System.out.println("  Programme : " + prog.getTypeAliment()
+                + " | " + prog.getQuantiteParRepas() + " kg/repas");
+
+        System.out.println("\n  Especes (" + zone.getEspeces().size() + ") :");
+        if (zone.getEspeces().isEmpty()) {
+            System.out.println("    Aucune espece.");
+        } else {
+            for (var e : zone.getEspeces())
+                System.out.println("    " + e.getId() + ". " + e.getEspece()
+                        + " | " + e.getNombre() + " individus");
+        }
+
+        System.out.println("\n  Capteurs eau (" + zone.getCapteurs().size() + ") :");
+        if (zone.getCapteurs().isEmpty()) {
+            System.out.println("    Aucun capteur.");
+        } else {
+            for (var cap : zone.getCapteurs()) {
+                if (cap instanceof CapteurEau ce) {
+                    System.out.println("    [" + ce.getCode() + "] " + ce.getTypeCapture() + " | " + ce.getStatut());
+                    System.out.println("      Temperature : " + ce.getTemperateur() + " °C"
+                            + "  (seuils: " + ce.getSeuilMin() + " - " + ce.getSeuilMax() + ")");
+                    System.out.println("      Oxygene     : " + ce.getOxygene() + " mg/L");
+                    System.out.println("      pH          : " + ce.getPh());
+                    System.out.println("      Releves     : " + ce.getHistorique().size());
+                }
+            }
+        }
     }
 
     // =========================================================================
@@ -511,5 +616,9 @@ public class Main {
         System.out.println("\n" + "=".repeat(55));
         System.out.println("  " + t);
         System.out.println("=".repeat(55));
+    }
+
+    static void sousTitre(String t) {
+        System.out.println("\n--- " + t + " ---");
     }
 }
