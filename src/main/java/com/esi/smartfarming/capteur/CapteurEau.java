@@ -12,13 +12,23 @@ public class CapteurEau extends CapteurNumerique {
     private double ph;
     private String typeCapture;
 
-    public CapteurEau(String code, Zone zone, double seuilMin, double seuilMax, String unite,
-                      double temperateur, double oxygene, double ph, String typeCapture) {
-        super(code, zone, seuilMin, seuilMax, unite);
+    private double tempMin, tempMax;
+    private double oxyMin,  oxyMax;
+    private double phMin,   phMax;
+
+    public CapteurEau(String code, Zone zone, String unite,
+                      double temperateur, double oxygene, double ph, String typeCapture,
+                      double tempMin, double tempMax,
+                      double oxyMin,  double oxyMax,
+                      double phMin,   double phMax) {
+        super(code, zone, unite);
         this.temperateur = temperateur;
-        this.oxygene = oxygene;
-        this.ph = ph;
+        this.oxygene     = oxygene;
+        this.ph          = ph;
         this.typeCapture = typeCapture;
+        this.tempMin = tempMin; this.tempMax = tempMax;
+        this.oxyMin  = oxyMin;  this.oxyMax  = oxyMax;
+        this.phMin   = phMin;   this.phMax   = phMax;
     }
 
     public double getTemperateur() { return temperateur; }
@@ -33,9 +43,18 @@ public class CapteurEau extends CapteurNumerique {
     public String getTypeCapture() { return typeCapture; }
     public void setTypeCapture(String typeCapture) { this.typeCapture = typeCapture; }
 
+    public double getTempMin() { return tempMin; } public double getTempMax() { return tempMax; }
+    public double getOxyMin()  { return oxyMin;  } public double getOxyMax()  { return oxyMax;  }
+    public double getPhMin()   { return phMin;   } public double getPhMax()   { return phMax;   }
+
+    public boolean verifierTemperature() { return temperateur >= tempMin && temperateur <= tempMax; }
+    public boolean verifierOxygene()     { return oxygene     >= oxyMin  && oxygene     <= oxyMax;  }
+    public boolean verifierPh()          { return ph          >= phMin   && ph          <= phMax;   }
+
     @Override
     public ReleveNumerique envoyerReleve() {
-        NiveauReleve niveau = verifierSeuil(temperateur) ? NiveauReleve.NORMAL : NiveauReleve.AVERTISSEMENT;
+        boolean ok = verifierTemperature() && verifierOxygene() && verifierPh();
+        NiveauReleve niveau = ok ? NiveauReleve.NORMAL : NiveauReleve.AVERTISSEMENT;
         ReleveNumerique releve = new ReleveNumerique(historique.size() + 1, this, new Date(), niveau, temperateur, unite, this);
         historique.add(releve);
         return releve;

@@ -10,18 +10,14 @@ public abstract class CapteurNumerique extends Capteur {
     protected String unite;
     protected List<ReleveNumerique> historique;
 
-    protected CapteurNumerique(String code, Zone zone, double seuilMin, double seuilMax, String unite) {
-        super(code, zone, seuilMin, seuilMax);
+    protected CapteurNumerique(String code, Zone zone, String unite) {
+        super(code, zone);
         this.unite = unite;
         this.historique = new ArrayList<>();
     }
 
     public String getUnite() { return unite; }
     public List<ReleveNumerique> getHistorique() { return historique; }
-
-    public boolean verifierSeuil(double valeur) {
-        return valeur >= seuilMin && valeur <= seuilMax;
-    }
 
     public abstract ReleveNumerique envoyerReleve();
 }

@@ -149,26 +149,37 @@ public class Main {
 
     static void ajouterCapteurEnv(ZoneCulture zone) {
         String code = "CE-" + String.format("%03d", capteurIdCounter++);
-        System.out.print("Temperature actuelle (°C) : ");  double temp = lireDouble();
-        System.out.print("Humidite actuelle (%) : ");       double hum  = lireDouble();
-        System.out.print("Pluviometrie actuelle (mm) : ");  double pluv = lireDouble();
-        System.out.print("Seuil min temperature : ");       double sMin = lireDouble();
-        System.out.print("Seuil max temperature : ");       double sMax = lireDouble();
+        System.out.print("Temperature actuelle (°C) : ");   double temp = lireDouble();
+        System.out.print("Humidite actuelle (%) : ");        double hum  = lireDouble();
+        System.out.print("Pluviometrie actuelle (mm) : ");   double pluv = lireDouble();
+        System.out.print("Seuil min temperature (°C) : ");   double tMin = lireDouble();
+        System.out.print("Seuil max temperature (°C) : ");   double tMax = lireDouble();
+        System.out.print("Seuil min humidite (%) : ");       double hMin = lireDouble();
+        System.out.print("Seuil max humidite (%) : ");       double hMax = lireDouble();
+        System.out.print("Seuil min pluviometrie (mm) : ");  double pMin = lireDouble();
+        System.out.print("Seuil max pluviometrie (mm) : ");  double pMax = lireDouble();
 
-        CapteurEnvironnemental cap = new CapteurEnvironnemental(code, zone, sMin, sMax, "°C", temp, hum, pluv);
+        CapteurEnvironnemental cap = new CapteurEnvironnemental(
+                code, zone, "°C", temp, hum, pluv,
+                tMin, tMax, hMin, hMax, pMin, pMax);
         zone.ajouterCapteurEnv(cap);
         System.out.println("Capteur environnemental [" + code + "] ajoute.");
     }
 
     static void ajouterCapteurSol(ZoneCulture zone) {
         String code = "CS-" + String.format("%03d", capteurIdCounter++);
-        System.out.print("pH actuel : ");              double ph   = lireDouble();
-        System.out.print("Humidite sol (%) : ");       double hum  = lireDouble();
-        System.out.print("Teneur azote (mg/kg) : ");   double azote = lireDouble();
-        System.out.print("Seuil min pH : ");            double sMin = lireDouble();
-        System.out.print("Seuil max pH : ");            double sMax = lireDouble();
+        System.out.print("pH actuel : ");                double ph    = lireDouble();
+        System.out.print("Humidite sol (%) : ");         double hum   = lireDouble();
+        System.out.print("Teneur azote (mg/kg) : ");     double azote = lireDouble();
+        System.out.print("Seuil min pH : ");             double phMin = lireDouble();
+        System.out.print("Seuil max pH : ");             double phMax = lireDouble();
+        System.out.print("Seuil min humidite (%) : ");   double hMin  = lireDouble();
+        System.out.print("Seuil max humidite (%) : ");   double hMax  = lireDouble();
+        System.out.print("Seuil min azote (mg/kg) : ");  double aMin  = lireDouble();
+        System.out.print("Seuil max azote (mg/kg) : ");  double aMax  = lireDouble();
 
-        CapteurSol cap = new CapteurSol(code, zone, sMin, sMax, "pH", ph, hum, azote);
+        CapteurSol cap = new CapteurSol(code, zone, "pH", ph, hum, azote,
+                phMin, phMax, hMin, hMax, aMin, aMax);
         zone.ajouterCapteurSol(cap);
         System.out.println("Capteur sol [" + code + "] ajoute.");
     }
@@ -209,15 +220,14 @@ public class Main {
         int i = 1;
         for (var cap : zone.getCapteurs()) {
             System.out.println("  " + i++ + ". [" + cap.getCode() + "] " + cap.getClass().getSimpleName() + " | " + cap.getStatut());
-            System.out.println("     Seuils : " + cap.getSeuilMin() + " - " + cap.getSeuilMax());
             if (cap instanceof CapteurEnvironnemental ce) {
-                System.out.println("     Temperature   : " + ce.getTemperature() + " °C");
-                System.out.println("     Humidite      : " + ce.getHumidite() + " %");
-                System.out.println("     Pluviometrie  : " + ce.getPluviometrie() + " mm");
+                System.out.println("     Temperature   : " + ce.getTemperature() + " °C  (seuils: " + ce.getTempMin() + " - " + ce.getTempMax() + ")");
+                System.out.println("     Humidite      : " + ce.getHumidite() + " %  (seuils: " + ce.getHumMin() + " - " + ce.getHumMax() + ")");
+                System.out.println("     Pluviometrie  : " + ce.getPluviometrie() + " mm  (seuils: " + ce.getPluvMin() + " - " + ce.getPluvMax() + ")");
             } else if (cap instanceof CapteurSol cs) {
-                System.out.println("     pH            : " + cs.getPh());
-                System.out.println("     Humidite sol  : " + cs.getHumidite() + " %");
-                System.out.println("     Azote         : " + cs.getTeneurAzote() + " mg/kg");
+                System.out.println("     pH            : " + cs.getPh() + "  (seuils: " + cs.getPhMin() + " - " + cs.getPhMax() + ")");
+                System.out.println("     Humidite sol  : " + cs.getHumidite() + " %  (seuils: " + cs.getHumMin() + " - " + cs.getHumMax() + ")");
+                System.out.println("     Azote         : " + cs.getTeneurAzote() + " mg/kg  (seuils: " + cs.getAzoteMin() + " - " + cs.getAzoteMax() + ")");
             }
             if (cap instanceof CapteurNumerique cn)
                 System.out.println("     Releves enregistres : " + cn.getHistorique().size());
@@ -331,12 +341,14 @@ public class Main {
 
         var animal = zone.getAnimaux().get(idx);
         String code = "CB-" + String.format("%03d", capteurIdCounter++);
-        System.out.print("Temperature corporelle (°C) : "); double temp = lireDouble();
-        System.out.print("Niveau d'activite (0.0-1.0) : "); double act  = lireDouble();
-        System.out.print("Seuil min temp : ");               double sMin = lireDouble();
-        System.out.print("Seuil max temp : ");               double sMax = lireDouble();
+        System.out.print("Temperature corporelle (°C) : ");       double temp  = lireDouble();
+        System.out.print("Niveau d'activite (0.0-1.0) : ");       double act   = lireDouble();
+        System.out.print("Seuil min temperature corp (°C) : ");    double tMin  = lireDouble();
+        System.out.print("Seuil max temperature corp (°C) : ");    double tMax  = lireDouble();
+        System.out.print("Seuil min niveau activite : ");          double aMin  = lireDouble();
+        System.out.print("Seuil max niveau activite : ");          double aMax  = lireDouble();
 
-        CapteurBiometrique cap = new CapteurBiometrique(code, zone, sMin, sMax, "°C", animal, temp, act);
+        CapteurBiometrique cap = new CapteurBiometrique(code, zone, "°C", animal, temp, act, tMin, tMax, aMin, aMax);
         animal.setCapteurBiometrique(cap);
 
         ReleveNumerique r = cap.envoyerReleve();
@@ -353,7 +365,7 @@ public class Main {
 
         var animal = zone.getAnimaux().get(idx);
         String code = "CG-" + String.format("%03d", capteurIdCounter++);
-        CapteurGPS cap = new CapteurGPS(code, zone, 0.0, 180.0, animal);
+        CapteurGPS cap = new CapteurGPS(code, zone, animal);
         animal.setCapteurGPS(cap);
 
         ReleveGPS r = cap.envoyerReleve();
@@ -456,14 +468,19 @@ public class Main {
 
     static void ajouterCapteurEau(ZoneAquacole zone) {
         String code = "CE-AQ-" + String.format("%03d", capteurIdCounter++);
-        System.out.print("Temperature eau (°C) : ");     double temp = lireDouble();
-        System.out.print("Taux oxygene (mg/L) : ");      double oxy  = lireDouble();
-        System.out.print("pH de l'eau : ");               double ph   = lireDouble();
-        System.out.print("Type capteur (ex: Polyvalent) : "); String type = sc.nextLine().trim();
-        System.out.print("Seuil min temperature : ");    double sMin = lireDouble();
-        System.out.print("Seuil max temperature : ");    double sMax = lireDouble();
+        System.out.print("Temperature eau (°C) : ");          double temp  = lireDouble();
+        System.out.print("Taux oxygene (mg/L) : ");           double oxy   = lireDouble();
+        System.out.print("pH de l'eau : ");                    double ph    = lireDouble();
+        System.out.print("Type capteur (ex: Polyvalent) : ");  String type  = sc.nextLine().trim();
+        System.out.print("Seuil min temperature (°C) : ");     double tMin  = lireDouble();
+        System.out.print("Seuil max temperature (°C) : ");     double tMax  = lireDouble();
+        System.out.print("Seuil min oxygene (mg/L) : ");       double oMin  = lireDouble();
+        System.out.print("Seuil max oxygene (mg/L) : ");       double oMax  = lireDouble();
+        System.out.print("Seuil min pH : ");                    double phMin = lireDouble();
+        System.out.print("Seuil max pH : ");                    double phMax = lireDouble();
 
-        CapteurEau cap = new CapteurEau(code, zone, sMin, sMax, "°C", temp, oxy, ph, type);
+        CapteurEau cap = new CapteurEau(code, zone, "°C", temp, oxy, ph, type,
+                tMin, tMax, oMin, oMax, phMin, phMax);
         zone.ajouterCapteurEau(cap);
         System.out.println("Capteur eau [" + code + "] ajoute.");
     }
@@ -511,10 +528,9 @@ public class Main {
             for (var cap : zone.getCapteurs()) {
                 if (cap instanceof CapteurEau ce) {
                     System.out.println("    [" + ce.getCode() + "] " + ce.getTypeCapture() + " | " + ce.getStatut());
-                    System.out.println("      Temperature : " + ce.getTemperateur() + " °C"
-                            + "  (seuils: " + ce.getSeuilMin() + " - " + ce.getSeuilMax() + ")");
-                    System.out.println("      Oxygene     : " + ce.getOxygene() + " mg/L");
-                    System.out.println("      pH          : " + ce.getPh());
+                    System.out.println("      Temperature : " + ce.getTemperateur() + " °C  (seuils: " + ce.getTempMin() + " - " + ce.getTempMax() + ")");
+                    System.out.println("      Oxygene     : " + ce.getOxygene() + " mg/L  (seuils: " + ce.getOxyMin() + " - " + ce.getOxyMax() + ")");
+                    System.out.println("      pH          : " + ce.getPh() + "  (seuils: " + ce.getPhMin() + " - " + ce.getPhMax() + ")");
                     System.out.println("      Releves     : " + ce.getHistorique().size());
                 }
             }

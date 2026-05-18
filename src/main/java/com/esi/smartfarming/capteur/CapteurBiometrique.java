@@ -12,12 +12,19 @@ public class CapteurBiometrique extends CapteurNumerique {
     private double temperatureCorporelle;
     private double niveauActivite;
 
-    public CapteurBiometrique(String code, Zone zone, double seuilMin, double seuilMax, String unite,
-                               Animal animal, double temperatureCorporelle, double niveauActivite) {
-        super(code, zone, seuilMin, seuilMax, unite);
-        this.animal = animal;
+    private double tempCorpMin, tempCorpMax;
+    private double activiteMin, activiteMax;
+
+    public CapteurBiometrique(String code, Zone zone, String unite,
+                               Animal animal, double temperatureCorporelle, double niveauActivite,
+                               double tempCorpMin, double tempCorpMax,
+                               double activiteMin, double activiteMax) {
+        super(code, zone, unite);
+        this.animal                = animal;
         this.temperatureCorporelle = temperatureCorporelle;
-        this.niveauActivite = niveauActivite;
+        this.niveauActivite        = niveauActivite;
+        this.tempCorpMin = tempCorpMin; this.tempCorpMax = tempCorpMax;
+        this.activiteMin = activiteMin; this.activiteMax = activiteMax;
     }
 
     public Animal getAnimal() { return animal; }
@@ -29,9 +36,16 @@ public class CapteurBiometrique extends CapteurNumerique {
     public double getNiveauActivite() { return niveauActivite; }
     public void setNiveauActivite(double niveauActivite) { this.niveauActivite = niveauActivite; }
 
+    public double getTempCorpMin() { return tempCorpMin; } public double getTempCorpMax() { return tempCorpMax; }
+    public double getActiviteMin() { return activiteMin; } public double getActiviteMax() { return activiteMax; }
+
+    public boolean verifierTemperatureCorporelle() { return temperatureCorporelle >= tempCorpMin && temperatureCorporelle <= tempCorpMax; }
+    public boolean verifierNiveauActivite()        { return niveauActivite        >= activiteMin && niveauActivite        <= activiteMax; }
+
     @Override
     public ReleveNumerique envoyerReleve() {
-        NiveauReleve niveau = verifierSeuil(temperatureCorporelle) ? NiveauReleve.NORMAL : NiveauReleve.AVERTISSEMENT;
+        boolean ok = verifierTemperatureCorporelle() && verifierNiveauActivite();
+        NiveauReleve niveau = ok ? NiveauReleve.NORMAL : NiveauReleve.AVERTISSEMENT;
         ReleveNumerique releve = new ReleveNumerique(historique.size() + 1, this, new Date(), niveau, temperatureCorporelle, unite, this);
         historique.add(releve);
         return releve;

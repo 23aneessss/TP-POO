@@ -13,8 +13,8 @@ public class CapteurGPS extends Capteur {
     private Animal animal;
     private List<ReleveGPS> historiqueGPS;
 
-    public CapteurGPS(String code, Zone zone, double seuilMin, double seuilMax, Animal animal) {
-        super(code, zone, seuilMin, seuilMax);
+    public CapteurGPS(String code, Zone zone, Animal animal) {
+        super(code, zone);
         this.animal = animal;
         this.historiqueGPS = new ArrayList<>();
     }

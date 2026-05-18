@@ -10,3 +10,7 @@ $JAVA/java --module-path $FX --add-modules javafx.controls -cp out com.esi.smart
 
 # Lancer le terminal (Main interactif) :
 $JAVA/java -cp out com.esi.smartfarming.Main
+
+find src -name "*.java" ! -path "*/ui/*" | xargs javac -d out
+
+java -cp out com.esi.smartfarming.Main
