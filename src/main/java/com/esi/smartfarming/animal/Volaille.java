@@ -6,6 +6,7 @@ import com.esi.smartfarming.zone.ZoneElevage;
 import java.util.Date;
 
 public class Volaille extends Animal {
+    private static final long serialVersionUID = 1L;
     public Volaille(int numero, String espece, int age, double poids) {
         super(numero, espece, age, poids);
     }

@@ -1,6 +1,9 @@
 package com.esi.smartfarming.animal;
 
-public class EspeceAquacole {
+import java.io.Serializable;
+
+public class EspeceAquacole implements Serializable {
+    private static final long serialVersionUID = 1L;
     private int id;
     private String espece;
     private int nombre;

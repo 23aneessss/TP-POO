@@ -6,10 +6,12 @@ import com.esi.smartfarming.enums.StatutAnimal;
 import com.esi.smartfarming.sanitaire.EvenementSanitaire;
 import com.esi.smartfarming.zone.ZoneElevage;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Animal {
+public abstract class Animal implements Serializable {
+    private static final long serialVersionUID = 1L;
     private int numero;
     private String espece;
     private int age;

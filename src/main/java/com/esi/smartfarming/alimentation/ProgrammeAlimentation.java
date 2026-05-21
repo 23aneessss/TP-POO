@@ -1,6 +1,9 @@
 package com.esi.smartfarming.alimentation;
 
-public class ProgrammeAlimentation {
+import java.io.Serializable;
+
+public class ProgrammeAlimentation implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String typeAliment;
     private double quantiteParRepas;
 

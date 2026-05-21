@@ -4,7 +4,11 @@ import com.esi.smartfarming.core.Suspendable;
 import com.esi.smartfarming.enums.StatutCapteur;
 import com.esi.smartfarming.zone.Zone;
 
-public abstract class Capteur implements Suspendable {
+import java.io.Serializable;
+
+public abstract class Capteur implements Suspendable, Serializable {
+    private static final long serialVersionUID = 1L;
+
     protected String code;
     protected Zone zone;
     protected StatutCapteur statut;
@@ -24,4 +28,6 @@ public abstract class Capteur implements Suspendable {
 
     @Override
     public void activer() { this.statut = StatutCapteur.ACTIF; }
+
+    public void marquerDefaillant() { this.statut = StatutCapteur.DEFAILLANT; }
 }

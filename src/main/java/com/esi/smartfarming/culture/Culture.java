@@ -3,9 +3,11 @@ package com.esi.smartfarming.culture;
 import com.esi.smartfarming.enums.StageCroissance;
 import com.esi.smartfarming.enums.TypeFamille;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class Culture {
+public class Culture implements Serializable {
+    private static final long serialVersionUID = 1L;
     private int id;
     private String nom;
     private TypeFamille famille;
