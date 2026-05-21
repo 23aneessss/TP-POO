@@ -14,3 +14,4 @@ $JAVA/java -cp out com.esi.smartfarming.Main
 find src -name "*.java" ! -path "*/ui/*" | xargs javac -d out
 
 java -cp out com.esi.smartfarming.Main
+
