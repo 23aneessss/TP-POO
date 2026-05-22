@@ -5,6 +5,7 @@ import com.esi.smartfarming.zone.Zone;
 import java.util.Date;
 
 public class HistoriqueOeuf extends HistoriqueProduction {
+    private static final long serialVersionUID = 1L;
     private int nombreOeufs;
 
     public HistoriqueOeuf(Zone zone, Date date, int nombreOeufs) {

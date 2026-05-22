@@ -1,5 +1,5 @@
 {
     "java.project.referencedLibraries": [
-        "/Users/mac/Downloads/javafx-sdk-26.0.1/lib/*.jar"
+        "/Users/mac/Downloads/javafx-sdk-17.0.13/lib/*.jar"
     ]
 }

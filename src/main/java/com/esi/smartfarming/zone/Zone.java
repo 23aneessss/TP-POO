@@ -5,10 +5,12 @@ import com.esi.smartfarming.core.Suspendable;
 import com.esi.smartfarming.enums.StatutZone;
 import com.esi.smartfarming.historique.HistoriqueProduction;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Zone implements Suspendable {
+public abstract class Zone implements Suspendable, Serializable {
+    private static final long serialVersionUID = 1L;
     protected String code;
     protected String nom;
     protected StatutZone statut;

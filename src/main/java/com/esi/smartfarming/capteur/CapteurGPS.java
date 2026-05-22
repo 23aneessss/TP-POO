@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 
 public class CapteurGPS extends Capteur {
+    private static final long serialVersionUID = 1L;
     private Animal animal;
     private List<ReleveGPS> historiqueGPS;
 

@@ -5,6 +5,7 @@ import com.esi.smartfarming.zone.Zone;
 import java.util.Date;
 
 public class HistoriqueAquacole extends HistoriqueProduction {
+    private static final long serialVersionUID = 1L;
     private double poidsRecolte;
 
     public HistoriqueAquacole(Zone zone, Date date, double poidsRecolte) {

@@ -1,5 +1,8 @@
 package com.esi.smartfarming.ui;
 
+import com.esi.smartfarming.capteur.Capteur;
+import com.esi.smartfarming.data.DataStore;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -17,19 +20,21 @@ public class CapteursView {
         return split;
     }
 
-    // ── Left : liste des capteurs ───────────────────────────────────────────────
+    // ── Left : liste des capteurs ─────────────────────────────────────────────
 
     private Node buildCapteurList() {
+        DataStore ds = DataStore.getInstance();
+
         VBox box = new VBox(10);
         box.setPadding(new Insets(16));
         box.setStyle("-fx-background-color: " + SmartFarmingApp.BG + ";");
 
-        Label title = new Label("Capteurs actifs");
+        Label title = new Label("Capteurs (" + ds.getAllCapteurs().size() + ")");
         title.setStyle("-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: " + SmartFarmingApp.TEXT + ";");
         box.getChildren().add(title);
 
-        for (String[] c : DummyData.CAPTEURS) {
-            box.getChildren().add(capteurCard(c));
+        for (Capteur c : ds.getAllCapteurs()) {
+            box.getChildren().add(capteurCard(ds.toCapteurRow(c)));
         }
 
         ScrollPane scroll = new ScrollPane(box);
@@ -79,7 +84,7 @@ public class CapteursView {
         return card;
     }
 
-    // ── Right : graphique d'evolution ──────────────────────────────────────────
+    // ── Right : graphique d'evolution ─────────────────────────────────────────
 
     private Node buildChartPanel() {
         VBox panel = new VBox(16);
@@ -103,34 +108,24 @@ public class CapteursView {
     private LineChart<String, Number> buildChart() {
         CategoryAxis xAxis = new CategoryAxis();
         xAxis.setLabel("Heure");
-
         NumberAxis yAxis = new NumberAxis();
         yAxis.setLabel("Valeur");
 
         LineChart<String, Number> chart = new LineChart<>(xAxis, yAxis);
-        chart.setTitle("");
         chart.setAnimated(false);
         chart.setCreateSymbols(true);
         chart.setStyle("-fx-background-color: white; -fx-background-radius: 8;");
 
-        // Serie 1 : Temperature ENV-01
         XYChart.Series<String, Number> s1 = new XYChart.Series<>();
-        s1.setName("Temp. ENV-01 (C)");
-        for (int i = 0; i < DummyData.HEURES.length; i++) {
-            s1.getData().add(new XYChart.Data<>(DummyData.HEURES[i], DummyData.TEMP_ENV01[i]));
-        }
-
-        // Serie 2 : pH SOL-02 (franchit le seuil apres 13h)
+        s1.setName("Temp. ENV-01 (°C)");
         XYChart.Series<String, Number> s2 = new XYChart.Series<>();
         s2.setName("pH SOL-02");
-        for (int i = 0; i < DummyData.HEURES.length; i++) {
-            s2.getData().add(new XYChart.Data<>(DummyData.HEURES[i], DummyData.PH_SOL02[i]));
-        }
-
-        // Serie 3 : Temperature BIO-02 (franchit le seuil apres 15h)
         XYChart.Series<String, Number> s3 = new XYChart.Series<>();
-        s3.setName("Temp. BIO-02 (C)");
+        s3.setName("Temp. BIO-02 (°C)");
+
         for (int i = 0; i < DummyData.HEURES.length; i++) {
+            s1.getData().add(new XYChart.Data<>(DummyData.HEURES[i], DummyData.TEMP_ENV01[i]));
+            s2.getData().add(new XYChart.Data<>(DummyData.HEURES[i], DummyData.PH_SOL02[i]));
             s3.getData().add(new XYChart.Data<>(DummyData.HEURES[i], DummyData.TEMP_BIO02[i]));
         }
 
@@ -143,7 +138,6 @@ public class CapteursView {
         legend.setAlignment(Pos.CENTER_LEFT);
         legend.setPadding(new Insets(8, 12, 8, 12));
         legend.setStyle("-fx-background-color: white; -fx-background-radius: 6;");
-
         legend.getChildren().addAll(
             legendItem("NORMAL",        SmartFarmingApp.GREEN,  "Releve dans les seuils"),
             legendItem("AVERTISSEMENT", SmartFarmingApp.ORANGE, "Releve proche du seuil"),

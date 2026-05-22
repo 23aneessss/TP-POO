@@ -1,5 +1,8 @@
 package com.esi.smartfarming.ui;
 
+import com.esi.smartfarming.alerte.Alerte;
+import com.esi.smartfarming.data.DataStore;
+
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -12,26 +15,33 @@ import javafx.scene.layout.*;
 
 public class AlertesView {
 
-    private FilteredList<String[]> filteredData;
+    private ObservableList<Alerte> allAlertes;
+    private FilteredList<Alerte>   filteredAlertes;
+    private TableView<Alerte>      table;
+    private Label                  badgeLabel;
 
     public Node build() {
-        ObservableList<String[]> allData = FXCollections.observableArrayList(DummyData.ALERTES);
-        filteredData = new FilteredList<>(allData, a -> true);
+        DataStore ds = DataStore.getInstance();
+        allAlertes     = FXCollections.observableArrayList(ds.getAlertes());
+        filteredAlertes = new FilteredList<>(allAlertes, a -> true);
 
         VBox root = new VBox(16);
         root.setPadding(new Insets(20));
         root.setStyle("-fx-background-color: " + SmartFarmingApp.BG + ";");
 
+        table = buildTable();
+
         root.getChildren().addAll(
             buildHeader(),
             buildFilterBar(),
-            buildTable(),
+            buildActionBar(),
+            table,
             buildFooter()
         );
         return root;
     }
 
-    // ── Header ──────────────────────────────────────────────────────────────────
+    // ── Header ────────────────────────────────────────────────────────────────
 
     private HBox buildHeader() {
         Label title = new Label("Panneau des alertes");
@@ -45,30 +55,28 @@ public class AlertesView {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        Label badge = new Label("3 alertes actives");
-        badge.setStyle("-fx-background-color: #fde8e8; -fx-text-fill: " + SmartFarmingApp.RED + ";" +
-                       "-fx-font-weight: bold; -fx-font-size: 12; -fx-background-radius: 6; -fx-padding: 6 14;");
+        badgeLabel = new Label();
+        refreshBadge();
 
-        HBox row = new HBox(left, spacer, badge);
+        HBox row = new HBox(left, spacer, badgeLabel);
         row.setAlignment(Pos.CENTER_LEFT);
         return row;
     }
 
-    // ── Filter bar ──────────────────────────────────────────────────────────────
+    // ── Filter bar ────────────────────────────────────────────────────────────
 
     private HBox buildFilterBar() {
-        Button btnTous   = filterBtn("Toutes (4)",         null);
-        Button btnCrit   = filterBtn("CRITIQUE (2)",       "CRITIQUE");
-        Button btnAvert  = filterBtn("AVERTISSEMENT (2)",  "AVERTISSEMENT");
-        Button btnAcq    = filterBtn("Acquittees (1)",     "OUI");
+        Button btnTous  = filterBtn("Toutes",         null);
+        Button btnCrit  = filterBtn("CRITIQUE",       "CRITIQUE");
+        Button btnAvert = filterBtn("AVERTISSEMENT",  "AVERTISSEMENT");
+        Button btnAcq   = filterBtn("Acquittees",     "OUI");
 
-        // Highlight "Toutes" by default
-        btnTous.setStyle(btnTous.getStyle() + "-fx-font-weight: bold;");
+        btnTous.setStyle(btnTous.getStyle() + " -fx-font-weight: bold;");
 
-        btnTous.setOnAction(e  -> filteredData.setPredicate(a -> true));
-        btnCrit.setOnAction(e  -> filteredData.setPredicate(a -> "CRITIQUE".equals(a[1])));
-        btnAvert.setOnAction(e -> filteredData.setPredicate(a -> "AVERTISSEMENT".equals(a[1])));
-        btnAcq.setOnAction(e   -> filteredData.setPredicate(a -> "Oui".equals(a[6])));
+        btnTous.setOnAction(e  -> filteredAlertes.setPredicate(a -> true));
+        btnCrit.setOnAction(e  -> filteredAlertes.setPredicate(a -> a.getNiveauGravite().name().equals("CRITIQUE")));
+        btnAvert.setOnAction(e -> filteredAlertes.setPredicate(a -> a.getNiveauGravite().name().equals("AVERTISSEMENT")));
+        btnAcq.setOnAction(e   -> filteredAlertes.setPredicate(Alerte::isAcquittee));
 
         HBox bar = new HBox(10, btnTous, btnCrit, btnAvert, btnAcq);
         bar.setAlignment(Pos.CENTER_LEFT);
@@ -77,9 +85,9 @@ public class AlertesView {
 
     private Button filterBtn(String label, String filter) {
         Button b = new Button(label);
-        String color = filter == null     ? SmartFarmingApp.BLUE
-                     : "CRITIQUE".equals(filter)       ? SmartFarmingApp.RED
-                     : "AVERTISSEMENT".equals(filter)  ? SmartFarmingApp.ORANGE
+        String color = filter == null              ? SmartFarmingApp.BLUE
+                     : "CRITIQUE".equals(filter)   ? SmartFarmingApp.RED
+                     : "AVERTISSEMENT".equals(filter) ? SmartFarmingApp.ORANGE
                      : SmartFarmingApp.GREEN;
         b.setStyle("-fx-background-color: white; -fx-text-fill: " + color + ";" +
                    "-fx-border-color: " + color + "; -fx-border-radius: 6; -fx-background-radius: 6;" +
@@ -87,94 +95,165 @@ public class AlertesView {
         return b;
     }
 
-    // ── Table ───────────────────────────────────────────────────────────────────
+    // ── Action bar ────────────────────────────────────────────────────────────
+
+    private HBox buildActionBar() {
+        Button btnAcquitter = new Button("✔ Acquitter la selection");
+        btnAcquitter.setStyle(
+            "-fx-background-color: " + SmartFarmingApp.GREEN + "; -fx-text-fill: white;" +
+            "-fx-background-radius: 6; -fx-padding: 6 16; -fx-font-size: 12; -fx-cursor: hand;");
+        btnAcquitter.setOnAction(e -> acquitterSelection());
+
+        Button btnSupprimer = new Button("✖ Supprimer la selection");
+        btnSupprimer.setStyle(
+            "-fx-background-color: " + SmartFarmingApp.RED + "; -fx-text-fill: white;" +
+            "-fx-background-radius: 6; -fx-padding: 6 16; -fx-font-size: 12; -fx-cursor: hand;");
+        btnSupprimer.setOnAction(e -> supprimerSelection());
+
+        HBox bar = new HBox(10, btnAcquitter, btnSupprimer);
+        bar.setAlignment(Pos.CENTER_LEFT);
+        return bar;
+    }
+
+    // ── Table ─────────────────────────────────────────────────────────────────
 
     @SuppressWarnings("unchecked")
-    private TableView<String[]> buildTable() {
-        TableView<String[]> table = new TableView<>(filteredData);
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
-        VBox.setVgrow(table, Priority.ALWAYS);
+    private TableView<Alerte> buildTable() {
+        TableView<Alerte> t = new TableView<>(filteredAlertes);
+        t.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        VBox.setVgrow(t, Priority.ALWAYS);
 
-        // Colonnes
-        table.getColumns().addAll(
-            simpleCol("ID",          0, 90),
-            niveauCol(),
-            simpleCol("Capteur",     2, 100),
-            simpleCol("Zone",        3, 110),
-            simpleCol("Description", 4, 260),
-            simpleCol("Date",        5, 110),
-            acquitteeCol()
-        );
+        TableColumn<Alerte, String> colId   = new TableColumn<>("ID");
+        colId.setCellValueFactory(d -> new SimpleStringProperty(
+            "ALT-" + String.format("%03d", d.getValue().getId())));
+        colId.setMinWidth(80);
 
-        // Couleur de fond des lignes selon niveau
-        table.setRowFactory(tv -> new TableRow<>() {
+        TableColumn<Alerte, String> colNiv  = niveauCol();
+        TableColumn<Alerte, String> colCap  = new TableColumn<>("Capteur");
+        colCap.setCellValueFactory(d -> {
+            Alerte a = d.getValue();
+            String code = (a.getReleve() != null && a.getReleve().getCapteur() != null)
+                ? a.getReleve().getCapteur().getCode() : "—";
+            return new SimpleStringProperty(code);
+        });
+        colCap.setMinWidth(90);
+
+        TableColumn<Alerte, String> colZone = new TableColumn<>("Zone");
+        colZone.setCellValueFactory(d -> {
+            Alerte a = d.getValue();
+            String nom = (a.getReleve() != null && a.getReleve().getCapteur() != null)
+                ? a.getReleve().getCapteur().getZone().getNom() : "—";
+            return new SimpleStringProperty(nom);
+        });
+        colZone.setMinWidth(100);
+
+        TableColumn<Alerte, String> colDesc = new TableColumn<>("Description");
+        colDesc.setCellValueFactory(d -> new SimpleStringProperty(DataStore.descriptionAlerte(d.getValue())));
+        colDesc.setMinWidth(250);
+
+        TableColumn<Alerte, String> colDate = new TableColumn<>("Date");
+        colDate.setCellValueFactory(d -> {
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM HH:mm");
+            return new SimpleStringProperty(sdf.format(d.getValue().getDateHeure()));
+        });
+        colDate.setMinWidth(100);
+
+        TableColumn<Alerte, String> colAcq  = acquitteeCol();
+
+        t.getColumns().addAll(colId, colNiv, colCap, colZone, colDesc, colDate, colAcq);
+
+        t.setRowFactory(tv -> new TableRow<>() {
             @Override
-            protected void updateItem(String[] item, boolean empty) {
+            protected void updateItem(Alerte item, boolean empty) {
                 super.updateItem(item, empty);
-                if (item == null || empty) {
-                    setStyle("");
-                } else if ("CRITIQUE".equals(item[1])) {
-                    setStyle("-fx-background-color: #fff5f5;");
-                } else if ("AVERTISSEMENT".equals(item[1])) {
-                    setStyle("-fx-background-color: #fffbf0;");
-                } else {
-                    setStyle("");
-                }
+                if (item == null || empty) { setStyle(""); return; }
+                if      (item.isAcquittee())                               setStyle("-fx-background-color: #f0fff4;");
+                else if ("CRITIQUE".equals(item.getNiveauGravite().name())) setStyle("-fx-background-color: #fff5f5;");
+                else                                                        setStyle("-fx-background-color: #fffbf0;");
             }
         });
 
-        table.setStyle("-fx-background-color: white; -fx-background-radius: 8;");
-        return table;
+        t.setStyle("-fx-background-color: white; -fx-background-radius: 8;");
+        return t;
     }
 
-    private TableColumn<String[], String> simpleCol(String header, int idx, double minW) {
-        TableColumn<String[], String> c = new TableColumn<>(header);
-        c.setCellValueFactory(d -> new SimpleStringProperty(d.getValue()[idx]));
-        c.setMinWidth(minW);
-        return c;
-    }
-
-    private TableColumn<String[], String> niveauCol() {
-        TableColumn<String[], String> c = new TableColumn<>("Niveau");
-        c.setCellValueFactory(d -> new SimpleStringProperty(d.getValue()[1]));
+    private TableColumn<Alerte, String> niveauCol() {
+        TableColumn<Alerte, String> c = new TableColumn<>("Niveau");
+        c.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getNiveauGravite().name()));
         c.setMinWidth(130);
         c.setCellFactory(tc -> new TableCell<>() {
             @Override protected void updateItem(String v, boolean empty) {
                 super.updateItem(v, empty);
                 if (v == null || empty) { setText(null); setStyle(""); return; }
                 setText(v);
-                if ("CRITIQUE".equals(v)) {
+                if ("CRITIQUE".equals(v))
                     setStyle("-fx-text-fill: " + SmartFarmingApp.RED    + "; -fx-font-weight: bold;");
-                } else if ("AVERTISSEMENT".equals(v)) {
+                else
                     setStyle("-fx-text-fill: " + SmartFarmingApp.ORANGE + "; -fx-font-weight: bold;");
-                } else {
-                    setStyle("-fx-text-fill: " + SmartFarmingApp.GREEN  + "; -fx-font-weight: bold;");
-                }
             }
         });
         return c;
     }
 
-    private TableColumn<String[], String> acquitteeCol() {
-        TableColumn<String[], String> c = new TableColumn<>("Acquittee");
-        c.setCellValueFactory(d -> new SimpleStringProperty(d.getValue()[6]));
+    private TableColumn<Alerte, String> acquitteeCol() {
+        TableColumn<Alerte, String> c = new TableColumn<>("Acquittee");
+        c.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().isAcquittee() ? "Oui" : "Non"));
         c.setMinWidth(90);
         c.setCellFactory(tc -> new TableCell<>() {
             @Override protected void updateItem(String v, boolean empty) {
                 super.updateItem(v, empty);
                 if (v == null || empty) { setText(null); setStyle(""); return; }
                 setText(v);
-                if ("Oui".equals(v)) {
+                if ("Oui".equals(v))
                     setStyle("-fx-text-fill: " + SmartFarmingApp.GREEN + "; -fx-font-weight: bold;");
-                } else {
+                else
                     setStyle("-fx-text-fill: " + SmartFarmingApp.SUBTEXT + ";");
-                }
             }
         });
         return c;
     }
 
-    // ── Footer ──────────────────────────────────────────────────────────────────
+    // ── Actions ───────────────────────────────────────────────────────────────
+
+    private void acquitterSelection() {
+        Alerte selected = table.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showInfo("Aucune selection", "Selectionnez une alerte dans le tableau.");
+            return;
+        }
+        if (selected.isAcquittee()) {
+            showInfo("Deja acquittee", "Cette alerte est deja acquittee.");
+            return;
+        }
+        DataStore.getInstance().acquitterAlerte(selected);
+        refreshTable();
+        refreshBadge();
+    }
+
+    private void supprimerSelection() {
+        Alerte selected = table.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showInfo("Aucune selection", "Selectionnez une alerte dans le tableau.");
+            return;
+        }
+        DataStore.getInstance().getAlertes().remove(selected);
+        DataStore.getInstance().save();
+        allAlertes.remove(selected);
+        refreshBadge();
+    }
+
+    private void refreshTable() {
+        table.refresh();
+    }
+
+    private void refreshBadge() {
+        long actives = DataStore.getInstance().countAlertesActives();
+        badgeLabel.setText(actives + " alerte(s) active(s)");
+        badgeLabel.setStyle("-fx-background-color: #fde8e8; -fx-text-fill: " + SmartFarmingApp.RED + ";" +
+                            "-fx-font-weight: bold; -fx-font-size: 12; -fx-background-radius: 6; -fx-padding: 6 14;");
+    }
+
+    // ── Footer ────────────────────────────────────────────────────────────────
 
     private HBox buildFooter() {
         Label info = new Label(
@@ -183,10 +262,19 @@ public class AlertesView {
             "● Acquittee : prise en charge confirmee"
         );
         info.setStyle("-fx-font-size: 11; -fx-text-fill: " + SmartFarmingApp.SUBTEXT + ";");
-
         HBox footer = new HBox(info);
         footer.setPadding(new Insets(8, 12, 8, 12));
         footer.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 6;");
         return footer;
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private void showInfo(String title, String msg) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(msg);
+        alert.showAndWait();
     }
 }

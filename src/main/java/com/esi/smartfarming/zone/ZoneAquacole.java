@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ZoneAquacole extends Zone {
+    private static final long serialVersionUID = 1L;
     private List<EspeceAquacole> especes;
     private List<CapteurEau> capteursEau;
     private ProgrammeAlimentation programmeAlimentation;

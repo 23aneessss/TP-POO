@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ZoneElevage extends Zone {
+    private static final long serialVersionUID = 1L;
     private List<Animal> animaux;
     private ProgrammeAlimentation programmeAlimentation;
     private HistoriqueLait historiqueLait;

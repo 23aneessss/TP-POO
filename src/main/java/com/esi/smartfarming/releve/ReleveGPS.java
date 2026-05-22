@@ -7,6 +7,7 @@ import com.esi.smartfarming.enums.NiveauReleve;
 import java.util.Date;
 
 public class ReleveGPS extends Releve {
+    private static final long serialVersionUID = 1L;
     private double latitude;
     private double longitude;
     private CapteurGPS capteurGPS;

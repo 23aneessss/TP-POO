@@ -1,5 +1,9 @@
 package com.esi.smartfarming.ui;
 
+import com.esi.smartfarming.alerte.Alerte;
+import com.esi.smartfarming.data.DataStore;
+import com.esi.smartfarming.zone.Zone;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -11,17 +15,19 @@ import javafx.scene.layout.*;
 public class DashboardView {
 
     public Node build() {
+        DataStore ds = DataStore.getInstance();
+
         VBox content = new VBox(24);
         content.setPadding(new Insets(24));
         content.setStyle("-fx-background-color: " + SmartFarmingApp.BG + ";");
 
         content.getChildren().addAll(
             sectionTitle("Vue d'ensemble"),
-            buildStatCards(),
+            buildStatCards(ds),
             sectionTitle("Zones de la ferme"),
-            buildZoneCards(),
+            buildZoneCards(ds),
             sectionTitle("Alertes recentes"),
-            buildRecentAlerts()
+            buildRecentAlerts(ds)
         );
 
         ScrollPane scroll = new ScrollPane(content);
@@ -30,15 +36,18 @@ public class DashboardView {
         return scroll;
     }
 
-    // ── Stat cards ─────────────────────────────────────────────────────────────
+    // ── Stat cards ────────────────────────────────────────────────────────────
 
-    private HBox buildStatCards() {
+    private HBox buildStatCards(DataStore ds) {
+        int totalZones    = ds.getZones().size();
+        int totalCapteurs = ds.getAllCapteurs().size();
+
         HBox row = new HBox(16);
         row.getChildren().addAll(
-            statCard("Zones actives",       "2 / 3", SmartFarmingApp.GREEN),
-            statCard("Capteurs actifs",     "6 / 8", SmartFarmingApp.BLUE),
-            statCard("Alertes actives",     "3",     SmartFarmingApp.RED),
-            statCard("Releves aujourd'hui", "24",    SmartFarmingApp.PURPLE)
+            statCard("Zones actives",       ds.countZonesActives()   + " / " + totalZones,    SmartFarmingApp.GREEN),
+            statCard("Capteurs actifs",     ds.countCapteursActifs() + " / " + totalCapteurs, SmartFarmingApp.BLUE),
+            statCard("Alertes actives",     String.valueOf(ds.countAlertesActives()),          SmartFarmingApp.RED),
+            statCard("Total animaux",       String.valueOf(ds.getZoneEst().getAnimaux().size()), SmartFarmingApp.PURPLE)
         );
         return row;
     }
@@ -57,12 +66,12 @@ public class DashboardView {
         return card;
     }
 
-    // ── Zone cards ──────────────────────────────────────────────────────────────
+    // ── Zone cards ────────────────────────────────────────────────────────────
 
-    private HBox buildZoneCards() {
+    private HBox buildZoneCards(DataStore ds) {
         HBox row = new HBox(16);
-        for (String[] z : DummyData.ZONES) {
-            row.getChildren().add(zoneCard(z));
+        for (Zone z : ds.getZones()) {
+            row.getChildren().add(zoneCard(ds.toZoneRow(z)));
         }
         return row;
     }
@@ -103,13 +112,15 @@ public class DashboardView {
         return card;
     }
 
-    // ── Recent alerts ───────────────────────────────────────────────────────────
+    // ── Recent alerts ─────────────────────────────────────────────────────────
 
-    private VBox buildRecentAlerts() {
+    private VBox buildRecentAlerts(DataStore ds) {
         VBox box = new VBox(8);
-        int count = Math.min(3, DummyData.ALERTES.length);
-        for (int i = 0; i < count; i++) {
-            box.getChildren().add(alertRow(DummyData.ALERTES[i]));
+        int count = 0;
+        for (Alerte a : ds.getAlertes()) {
+            if (count >= 3) break;
+            box.getChildren().add(alertRow(ds.toAlerteRow(a)));
+            count++;
         }
         return box;
     }
@@ -143,7 +154,7 @@ public class DashboardView {
         return row;
     }
 
-    // ── Helpers ─────────────────────────────────────────────────────────────────
+    // ── Helpers ───────────────────────────────────────────────────────────────
 
     private Label sectionTitle(String text) {
         Label l = new Label(text);

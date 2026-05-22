@@ -3,9 +3,11 @@ package com.esi.smartfarming.alerte;
 import com.esi.smartfarming.enums.NiveauGravite;
 import com.esi.smartfarming.releve.Releve;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class Alerte {
+public class Alerte implements Serializable {
+    private static final long serialVersionUID = 1L;
     private int id;
     private Releve releve;
     private NiveauGravite niveauGravite;

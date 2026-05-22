@@ -7,6 +7,7 @@ import com.esi.smartfarming.zone.Zone;
 import java.util.Date;
 
 public class CapteurEau extends CapteurNumerique {
+    private static final long serialVersionUID = 1L;
     private double temperateur;
     private double oxygene;
     private double ph;

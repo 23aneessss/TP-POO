@@ -5,6 +5,7 @@ import com.esi.smartfarming.zone.Zone;
 import java.util.Date;
 
 public class HistoriqueCulture extends HistoriqueProduction {
+    private static final long serialVersionUID = 1L;
     private double rendement;
 
     public HistoriqueCulture(Zone zone, Date date, double rendement) {

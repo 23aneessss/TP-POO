@@ -7,6 +7,7 @@ import com.esi.smartfarming.zone.Zone;
 import java.util.Date;
 
 public class CapteurEnvironnemental extends CapteurNumerique {
+    private static final long serialVersionUID = 1L;
     private double temperature;
     private double humidite;
     private double pluviometrie;

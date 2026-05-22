@@ -5,6 +5,7 @@ import com.esi.smartfarming.zone.Zone;
 import java.util.Date;
 
 public class HistoriqueLait extends HistoriqueProduction {
+    private static final long serialVersionUID = 1L;
     private double quantiteLait;
 
     public HistoriqueLait(Zone zone, Date date, double quantiteLait) {

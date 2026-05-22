@@ -7,6 +7,7 @@ import com.esi.smartfarming.zone.Zone;
 import java.util.Date;
 
 public class CapteurSol extends CapteurNumerique {
+    private static final long serialVersionUID = 1L;
     private double ph;
     private double humidite;
     private double teneurAzote;

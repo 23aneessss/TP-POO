@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class CapteurNumerique extends Capteur {
+    private static final long serialVersionUID = 1L;
     protected String unite;
     protected List<ReleveNumerique> historique;
 

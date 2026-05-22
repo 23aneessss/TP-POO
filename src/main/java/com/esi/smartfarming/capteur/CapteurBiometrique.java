@@ -8,6 +8,7 @@ import com.esi.smartfarming.zone.Zone;
 import java.util.Date;
 
 public class CapteurBiometrique extends CapteurNumerique {
+    private static final long serialVersionUID = 1L;
     private Animal animal;
     private double temperatureCorporelle;
     private double niveauActivite;

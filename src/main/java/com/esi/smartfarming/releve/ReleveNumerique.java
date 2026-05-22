@@ -7,6 +7,7 @@ import com.esi.smartfarming.enums.NiveauReleve;
 import java.util.Date;
 
 public class ReleveNumerique extends Releve {
+    private static final long serialVersionUID = 1L;
     private double valeur;
     private String unite;
     private CapteurNumerique capteurNumerique;
