@@ -4,7 +4,6 @@ import com.esi.smartfarming.alerte.Alerte;
 import com.esi.smartfarming.data.DataStore;
 
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Insets;
@@ -22,7 +21,7 @@ public class AlertesView {
 
     public Node build() {
         DataStore ds = DataStore.getInstance();
-        allAlertes     = FXCollections.observableArrayList(ds.getAlertes());
+        allAlertes      = ds.getObservableAlertes();
         filteredAlertes = new FilteredList<>(allAlertes, a -> true);
 
         VBox root = new VBox(16);

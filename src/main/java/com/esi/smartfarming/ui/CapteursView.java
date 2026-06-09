@@ -1,7 +1,8 @@
 package com.esi.smartfarming.ui;
 
-import com.esi.smartfarming.capteur.Capteur;
+import com.esi.smartfarming.capteur.*;
 import com.esi.smartfarming.data.DataStore;
+import com.esi.smartfarming.enums.StatutCapteur;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -10,13 +11,24 @@ import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
+import java.util.List;
+
+/**
+ * Vue de gestion des capteurs de la ferme.
+ * <p>
+ * Panneau gauche : liste de tous les capteurs (toutes zones confondues) avec
+ * leurs valeurs actuelles et des boutons d'action rapide.
+ * Panneau droit  : graphique d'evolution des relevés sur la journée.
+ */
 public class CapteursView {
+
+    private VBox capteurListBox;
 
     public Node build() {
         SplitPane split = new SplitPane();
         split.setStyle("-fx-background-color: " + SmartFarmingApp.BG + ";");
         split.getItems().addAll(buildCapteurList(), buildChartPanel());
-        split.setDividerPositions(0.35);
+        split.setDividerPositions(0.42);
         return split;
     }
 
@@ -25,63 +37,169 @@ public class CapteursView {
     private Node buildCapteurList() {
         DataStore ds = DataStore.getInstance();
 
-        VBox box = new VBox(10);
-        box.setPadding(new Insets(16));
-        box.setStyle("-fx-background-color: " + SmartFarmingApp.BG + ";");
+        capteurListBox = new VBox(10);
+        capteurListBox.setPadding(new Insets(16));
+        capteurListBox.setStyle("-fx-background-color: " + SmartFarmingApp.BG + ";");
 
         Label title = new Label("Capteurs (" + ds.getAllCapteurs().size() + ")");
         title.setStyle("-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: " + SmartFarmingApp.TEXT + ";");
-        box.getChildren().add(title);
+        capteurListBox.getChildren().add(title);
 
-        for (Capteur c : ds.getAllCapteurs()) {
-            box.getChildren().add(capteurCard(ds.toCapteurRow(c)));
-        }
+        refreshCapteurCards(ds);
 
-        ScrollPane scroll = new ScrollPane(box);
+        ScrollPane scroll = new ScrollPane(capteurListBox);
         scroll.setFitToWidth(true);
         scroll.setStyle("-fx-background-color: " + SmartFarmingApp.BG + "; -fx-background: " + SmartFarmingApp.BG + ";");
         return scroll;
     }
 
-    private VBox capteurCard(String[] c) {
-        // c: [code, type, zone, statut, seuilMin, seuilMax, derniere_valeur, niveau]
-        String statut = c[3];
-        String color;
-        if      ("ACTIF".equals(statut))      color = SmartFarmingApp.GREEN;
-        else if ("DEFAILLANT".equals(statut)) color = SmartFarmingApp.RED;
-        else                                  color = SmartFarmingApp.GRAY;
+    private void refreshCapteurCards(DataStore ds) {
+        // Keep the title label (index 0), replace the rest
+        while (capteurListBox.getChildren().size() > 1)
+            capteurListBox.getChildren().remove(1);
 
-        String niveauReleve = c[7];
-        String niveauColor;
-        if      ("CRITIQUE".equals(niveauReleve))      niveauColor = SmartFarmingApp.RED;
-        else if ("AVERTISSEMENT".equals(niveauReleve)) niveauColor = SmartFarmingApp.ORANGE;
-        else                                           niveauColor = SmartFarmingApp.GREEN;
+        Label title = (Label) capteurListBox.getChildren().get(0);
+        title.setText("Capteurs (" + ds.getAllCapteurs().size() + ")");
 
-        Label code = new Label(c[0] + "  (" + c[1] + ")");
+        for (Capteur c : ds.getAllCapteurs()) {
+            capteurListBox.getChildren().add(capteurCard(c, ds));
+        }
+    }
+
+    private VBox capteurCard(Capteur c, DataStore ds) {
+        String[] row = ds.toCapteurRow(c);
+        // row: [code, type, zone, statut, seuilMin, seuilMax, derniere_valeur, niveau]
+        String statut = c.getStatut().name();
+        String statusColor = switch (statut) {
+            case "ACTIF"      -> SmartFarmingApp.GREEN;
+            case "DEFAILLANT" -> SmartFarmingApp.RED;
+            default           -> SmartFarmingApp.GRAY;
+        };
+        String niveauColor = switch (row[7]) {
+            case "CRITIQUE"      -> SmartFarmingApp.RED;
+            case "AVERTISSEMENT" -> SmartFarmingApp.ORANGE;
+            default              -> SmartFarmingApp.GREEN;
+        };
+
+        Label code = new Label(c.getCode() + "  (" + row[1] + ")");
         code.setStyle("-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: " + SmartFarmingApp.TEXT + ";");
 
-        Label zone = new Label(c[2]);
+        Label zone = new Label(c.getZone().getNom());
         zone.setStyle("-fx-font-size: 11; -fx-text-fill: " + SmartFarmingApp.SUBTEXT + ";");
 
         Label statLabel = new Label("● " + statut);
-        statLabel.setStyle("-fx-font-size: 11; -fx-font-weight: bold; -fx-text-fill: " + color + ";");
+        statLabel.setStyle("-fx-font-size: 11; -fx-font-weight: bold; -fx-text-fill: " + statusColor + ";");
 
-        Label valeur = new Label("Derniere valeur : " + c[6]);
+        Label valeur = new Label("Valeur : " + row[6]);
         valeur.setStyle("-fx-font-size: 12; -fx-text-fill: " + SmartFarmingApp.TEXT + ";");
 
-        Label niveau = new Label("Niveau : " + niveauReleve);
+        Label niveau = new Label("Niveau : " + row[7]);
         niveau.setStyle("-fx-font-size: 11; -fx-font-weight: bold; -fx-text-fill: " + niveauColor + ";");
 
-        Label seuils = new Label("Seuils : " + c[4] + " — " + c[5]);
+        Label seuils = new Label("Seuils : " + row[4] + " — " + row[5]);
         seuils.setStyle("-fx-font-size: 11; -fx-text-fill: " + SmartFarmingApp.SUBTEXT + ";");
 
-        VBox card = new VBox(4, code, zone, statLabel, new Separator(), valeur, niveau, seuils);
+        // ── Action buttons ───────────────────────────────────────────────────
+        HBox actions = buildCapteurActions(c, ds, statLabel, valeur, niveau, seuils);
+
+        VBox card = new VBox(4, code, zone, statLabel, new Separator(), valeur, niveau, seuils, actions);
         card.setPadding(new Insets(10, 12, 10, 12));
-        card.setStyle("-fx-background-color: white; -fx-background-radius: 8;" +
-                      "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.07), 6, 0, 0, 1);" +
-                      "-fx-border-color: transparent transparent transparent " + color + ";" +
-                      "-fx-border-width: 0 0 0 3;");
+        card.setStyle(
+            "-fx-background-color: white; -fx-background-radius: 8;" +
+            "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.07), 6, 0, 0, 1);" +
+            "-fx-border-color: transparent transparent transparent " + statusColor + ";" +
+            "-fx-border-width: 0 0 0 3;");
         return card;
+    }
+
+    private HBox buildCapteurActions(Capteur c, DataStore ds,
+                                      Label statLabel, Label valeur, Label niveau, Label seuils) {
+        Button btnBascule = new Button();
+        Button btnDefaill = new Button("⚠ Defaillant");
+        Button btnReleve  = new Button("↻ Releve");
+
+        styleMiniBtn(btnBascule, SmartFarmingApp.BLUE);
+        styleMiniBtn(btnDefaill, SmartFarmingApp.ORANGE);
+        styleMiniBtn(btnReleve,  SmartFarmingApp.GREEN);
+
+        updateBasculeLabel(c, btnBascule);
+
+        btnBascule.setOnAction(e -> {
+            if (c.getStatut() == StatutCapteur.DEFAILLANT) {
+                ds.reactiverCapteur(c);
+            } else {
+                ds.basculerCapteur(c);
+            }
+            updateCapteurCardLabels(c, ds, statLabel, valeur, niveau, seuils);
+            updateBasculeLabel(c, btnBascule);
+        });
+
+        btnDefaill.setOnAction(e -> {
+            if (c.getStatut() == StatutCapteur.DEFAILLANT) {
+                info("Deja defaillant", "Ce capteur est deja marque comme defaillant.");
+                return;
+            }
+            ds.marquerDefaillantCapteur(c);
+            updateCapteurCardLabels(c, ds, statLabel, valeur, niveau, seuils);
+            updateBasculeLabel(c, btnBascule);
+        });
+
+        btnReleve.setOnAction(e -> {
+            if (c.getStatut() != StatutCapteur.ACTIF) {
+                info("Capteur inactif", "Activez d'abord le capteur pour envoyer un releve.");
+                return;
+            }
+            if (c instanceof CapteurNumerique) {
+                var r = ((CapteurNumerique) c).envoyerReleve();
+                ds.save();
+                updateCapteurCardLabels(c, ds, statLabel, valeur, niveau, seuils);
+                info("Releve envoye", "[" + c.getCode() + "] Valeur = " + String.format("%.2f", r.getValeur())
+                    + " " + r.getUnite() + " — Niveau : " + r.getNiveau());
+            } else if (c instanceof CapteurGPS) {
+                var r = ((CapteurGPS) c).envoyerReleve();
+                ds.save();
+                info("Releve GPS envoye", "[" + c.getCode() + "] lat=" +
+                    String.format("%.5f", r.getLatitude()) + "  lon=" + String.format("%.5f", r.getLongitude()));
+            }
+        });
+
+        HBox actions = new HBox(6, btnBascule, btnDefaill, btnReleve);
+        actions.setPadding(new Insets(4, 0, 0, 0));
+        return actions;
+    }
+
+    private void updateBasculeLabel(Capteur c, Button btn) {
+        switch (c.getStatut()) {
+            case ACTIF     -> { btn.setText("⏸ Suspendre"); styleMiniBtn(btn, SmartFarmingApp.GRAY);   }
+            case SUSPENDU  -> { btn.setText("▶ Activer");   styleMiniBtn(btn, SmartFarmingApp.GREEN);  }
+            case DEFAILLANT-> { btn.setText("↺ Reactiver"); styleMiniBtn(btn, SmartFarmingApp.BLUE);   }
+        }
+    }
+
+    private void updateCapteurCardLabels(Capteur c, DataStore ds,
+                                          Label statLabel, Label valeur, Label niveau, Label seuils) {
+        String[] row = ds.toCapteurRow(c);
+        String statusColor = switch (c.getStatut().name()) {
+            case "ACTIF"      -> SmartFarmingApp.GREEN;
+            case "DEFAILLANT" -> SmartFarmingApp.RED;
+            default           -> SmartFarmingApp.GRAY;
+        };
+        String niveauColor = switch (row[7]) {
+            case "CRITIQUE"      -> SmartFarmingApp.RED;
+            case "AVERTISSEMENT" -> SmartFarmingApp.ORANGE;
+            default              -> SmartFarmingApp.GREEN;
+        };
+        statLabel.setText("● " + c.getStatut().name());
+        statLabel.setStyle("-fx-font-size: 11; -fx-font-weight: bold; -fx-text-fill: " + statusColor + ";");
+        valeur.setText("Valeur : " + row[6]);
+        niveau.setText("Niveau : " + row[7]);
+        niveau.setStyle("-fx-font-size: 11; -fx-font-weight: bold; -fx-text-fill: " + niveauColor + ";");
+        seuils.setText("Seuils : " + row[4] + " — " + row[5]);
+    }
+
+    private void styleMiniBtn(Button b, String color) {
+        b.setStyle("-fx-background-color: " + color + "; -fx-text-fill: white;" +
+                   "-fx-background-radius: 4; -fx-padding: 3 10; -fx-font-size: 11; -fx-cursor: hand;");
     }
 
     // ── Right : graphique d'evolution ─────────────────────────────────────────
@@ -123,14 +241,41 @@ public class CapteursView {
         XYChart.Series<String, Number> s3 = new XYChart.Series<>();
         s3.setName("Temp. BIO-02 (°C)");
 
-        for (int i = 0; i < DummyData.HEURES.length; i++) {
-            s1.getData().add(new XYChart.Data<>(DummyData.HEURES[i], DummyData.TEMP_ENV01[i]));
-            s2.getData().add(new XYChart.Data<>(DummyData.HEURES[i], DummyData.PH_SOL02[i]));
-            s3.getData().add(new XYChart.Data<>(DummyData.HEURES[i], DummyData.TEMP_BIO02[i]));
+        // Build chart from actual capteur historique, or fall back to DummyData
+        List<CapteurNumerique> numeriques = buildNumeriqueList();
+        if (numeriques.size() >= 2 && !numeriques.get(0).getHistorique().isEmpty()
+                && numeriques.get(0).getHistorique().size() >= 3) {
+            fillFromHistorique(s1, numeriques.get(0));
+            fillFromHistorique(s2, numeriques.get(1));
+            if (numeriques.size() >= 3) fillFromHistorique(s3, numeriques.get(2));
+        } else {
+            for (int i = 0; i < DummyData.HEURES.length; i++) {
+                s1.getData().add(new XYChart.Data<>(DummyData.HEURES[i], DummyData.TEMP_ENV01[i]));
+                s2.getData().add(new XYChart.Data<>(DummyData.HEURES[i], DummyData.PH_SOL02[i]));
+                s3.getData().add(new XYChart.Data<>(DummyData.HEURES[i], DummyData.TEMP_BIO02[i]));
+            }
         }
 
         chart.getData().addAll(s1, s2, s3);
         return chart;
+    }
+
+    private List<CapteurNumerique> buildNumeriqueList() {
+        return DataStore.getInstance().getAllCapteurs().stream()
+            .filter(c -> c instanceof CapteurNumerique)
+            .map(c -> (CapteurNumerique) c)
+            .limit(3)
+            .collect(java.util.stream.Collectors.toList());
+    }
+
+    private void fillFromHistorique(XYChart.Series<String, Number> series, CapteurNumerique c) {
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm");
+        var hist = c.getHistorique();
+        int start = Math.max(0, hist.size() - 8);
+        for (int i = start; i < hist.size(); i++) {
+            var r = hist.get(i);
+            series.getData().add(new XYChart.Data<>(sdf.format(r.getDateHeure()), r.getValeur()));
+        }
     }
 
     private HBox buildLegend() {
@@ -154,5 +299,10 @@ public class CapteursView {
         Label d = new Label(" — " + desc);
         d.setStyle("-fx-font-size: 11; -fx-text-fill: " + SmartFarmingApp.SUBTEXT + ";");
         return new HBox(4, dot, lbl, d);
+    }
+
+    private void info(String title, String msg) {
+        Alert a = new Alert(Alert.AlertType.INFORMATION);
+        a.setTitle(title); a.setHeaderText(null); a.setContentText(msg); a.showAndWait();
     }
 }

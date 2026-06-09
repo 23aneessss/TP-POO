@@ -9,6 +9,14 @@ import com.esi.smartfarming.historique.HistoriqueProduction;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Zone dédiée à l'élevage animal ({@link com.esi.smartfarming.animal.Ruminant},
+ * {@link com.esi.smartfarming.animal.Volaille}).
+ * <p>
+ * Contient un {@link com.esi.smartfarming.alimentation.ProgrammeAlimentation}
+ * commun à tous les animaux, ainsi qu'un historique de production laitière
+ * et d'œufs.
+ */
 public class ZoneElevage extends Zone {
     private static final long serialVersionUID = 1L;
     private List<Animal> animaux;

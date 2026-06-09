@@ -6,6 +6,19 @@ import com.esi.smartfarming.releve.Releve;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * Représente une alerte générée automatiquement lorsqu'un relevé de capteur
+ * dépasse ses seuils définis.
+ * <p>
+ * Une alerte est liée à un {@link com.esi.smartfarming.releve.Releve} et porte
+ * un niveau de gravité ({@link com.esi.smartfarming.enums.NiveauGravite}) :
+ * <ul>
+ *   <li>{@code AVERTISSEMENT} — valeur proche du seuil, surveillance requise</li>
+ *   <li>{@code CRITIQUE}      — valeur hors seuil, action immédiate requise</li>
+ * </ul>
+ * Une alerte peut être <em>acquittée</em> (prise en charge confirmée) ou
+ * <em>supprimée</em> (retirée de la liste active).
+ */
 public class Alerte implements Serializable {
     private static final long serialVersionUID = 1L;
     private int id;

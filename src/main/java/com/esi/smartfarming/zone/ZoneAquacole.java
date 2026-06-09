@@ -9,6 +9,15 @@ import com.esi.smartfarming.historique.HistoriqueProduction;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Zone dédiée à l'aquaculture (bassins de poissons, crustacés…).
+ * <p>
+ * Gère une liste d'{@link com.esi.smartfarming.animal.EspeceAquacole},
+ * des capteurs d'eau ({@link com.esi.smartfarming.capteur.CapteurEau})
+ * et un {@link com.esi.smartfarming.alimentation.ProgrammeAlimentation}.
+ * Une zone aquacole est initialement suspendue si les paramètres d'eau
+ * ne sont pas encore conformes.
+ */
 public class ZoneAquacole extends Zone {
     private static final long serialVersionUID = 1L;
     private List<EspeceAquacole> especes;
