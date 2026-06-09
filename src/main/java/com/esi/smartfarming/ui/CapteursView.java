@@ -3,6 +3,7 @@ package com.esi.smartfarming.ui;
 import com.esi.smartfarming.capteur.*;
 import com.esi.smartfarming.data.DataStore;
 import com.esi.smartfarming.enums.StatutCapteur;
+import com.esi.smartfarming.releve.ReleveGPS;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -99,10 +100,16 @@ public class CapteursView {
         Label seuils = new Label("Seuils : " + row[4] + " — " + row[5]);
         seuils.setStyle("-fx-font-size: 11; -fx-text-fill: " + SmartFarmingApp.SUBTEXT + ";");
 
+        // ── All measurements ─────────────────────────────────────────────────
+        Label mesures = buildAllMesures(c);
+        mesures.setStyle("-fx-font-size: 11; -fx-text-fill: " + SmartFarmingApp.TEXT
+            + "; -fx-background-color: #f8f9fa; -fx-background-radius: 4; -fx-padding: 4 8;");
+        mesures.setWrapText(true);
+
         // ── Action buttons ───────────────────────────────────────────────────
         HBox actions = buildCapteurActions(c, ds, statLabel, valeur, niveau, seuils);
 
-        VBox card = new VBox(4, code, zone, statLabel, new Separator(), valeur, niveau, seuils, actions);
+        VBox card = new VBox(4, code, zone, statLabel, new Separator(), mesures, niveau, seuils, actions);
         card.setPadding(new Insets(10, 12, 10, 12));
         card.setStyle(
             "-fx-background-color: white; -fx-background-radius: 8;" +
@@ -166,6 +173,40 @@ public class CapteursView {
         HBox actions = new HBox(6, btnBascule, btnDefaill, btnReleve);
         actions.setPadding(new Insets(4, 0, 0, 0));
         return actions;
+    }
+
+    /** Returns a Label showing all current measurements for a capteur. */
+    private Label buildAllMesures(Capteur c) {
+        StringBuilder sb = new StringBuilder();
+        if (c instanceof CapteurEnvironnemental ce) {
+            sb.append(String.format("T° : %.1f °C  (seuils: %.1f – %.1f)%n", ce.getTemperature(), ce.getTempMin(), ce.getTempMax()));
+            sb.append(String.format("Humidite : %.1f %%  (seuils: %.1f – %.1f)%n", ce.getHumidite(), ce.getHumMin(), ce.getHumMax()));
+            sb.append(String.format("Pluviometrie : %.1f mm  (seuils: %.1f – %.1f)", ce.getPluviometrie(), ce.getPluvMin(), ce.getPluvMax()));
+        } else if (c instanceof CapteurSol cs) {
+            sb.append(String.format("pH : %.2f  (seuils: %.1f – %.1f)%n", cs.getPh(), cs.getPhMin(), cs.getPhMax()));
+            sb.append(String.format("Humidite sol : %.1f %%  (seuils: %.1f – %.1f)%n", cs.getHumidite(), cs.getHumMin(), cs.getHumMax()));
+            sb.append(String.format("Azote : %.2f mg/kg  (seuils: %.1f – %.1f)", cs.getTeneurAzote(), cs.getAzoteMin(), cs.getAzoteMax()));
+        } else if (c instanceof CapteurBiometrique cb) {
+            sb.append(String.format("Temp. corp. : %.1f °C  (seuils: %.1f – %.1f)%n", cb.getTemperatureCorporelle(), cb.getTempCorpMin(), cb.getTempCorpMax()));
+            sb.append(String.format("Activite : %.1f  (seuils: %.1f – %.1f)%n", cb.getNiveauActivite(), cb.getActiviteMin(), cb.getActiviteMax()));
+            sb.append("Animal : ").append(cb.getAnimal() != null ? cb.getAnimal().getEspece() : "—");
+        } else if (c instanceof CapteurEau ce) {
+            sb.append(String.format("Temp. eau : %.1f °C  (seuils: %.1f – %.1f)%n", ce.getTemperateur(), ce.getTempMin(), ce.getTempMax()));
+            sb.append(String.format("Oxygene : %.1f mg/L  (seuils: %.1f – %.1f)%n", ce.getOxygene(), ce.getOxyMin(), ce.getOxyMax()));
+            sb.append(String.format("pH : %.2f  (seuils: %.1f – %.1f)", ce.getPh(), ce.getPhMin(), ce.getPhMax()));
+        } else if (c instanceof CapteurGPS cg) {
+            java.util.List<ReleveGPS> hist = cg.getHistoriqueGPS();
+            if (!hist.isEmpty()) {
+                ReleveGPS last = hist.get(hist.size() - 1);
+                sb.append(String.format("Derniere position :%nlat = %.5f%nlon = %.5f", last.getLatitude(), last.getLongitude()));
+            } else {
+                sb.append("Aucun releve GPS enregistre");
+            }
+            if (cg.getAnimal() != null) sb.append("\nAnimal : ").append(cg.getAnimal().getEspece());
+        } else {
+            sb.append("Aucune mesure disponible");
+        }
+        return new Label(sb.toString());
     }
 
     private void updateBasculeLabel(Capteur c, Button btn) {

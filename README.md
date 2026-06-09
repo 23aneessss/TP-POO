@@ -220,3 +220,8 @@ Au démarrage, `DataStore.loadOrCreate()` tente de charger ce fichier ; en cas d
 ---
 
 *Projet réalisé dans le cadre du TP Programmation Orientée Objet — ESI 2025/2026*
+
+
+export FX=~/Downloads/javafx-sdk-17.0.13/lib                           
+find src -name "*.java" | xargs javac --module-path $FX --add-modules javafx.controls -d out
+java --module-path $FX --add-modules javafx.controls -cp out com.esi.smartfarming.ui.SmartFarmingApp

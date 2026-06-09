@@ -299,15 +299,17 @@ public class ZonesView {
         progRow.setStyle("-fx-background-color: #eaf4fb; -fx-background-radius: 6;");
 
         // ── Actions animaux ───────────────────────────────────────────────
-        Button btnAjout  = greenBtn("+ Ajouter animal");
-        Button btnProd   = blueBtn("Enregistrer production");
-        Button btnEvt    = blueBtn("Evenement sanitaire");
+        Button btnAjout   = greenBtn("+ Ajouter animal");
+        Button btnDetails = blueBtn("Voir details");
+        Button btnProd    = blueBtn("Enregistrer production");
+        Button btnEvt     = blueBtn("Evenement sanitaire");
         Button btnLimites = orangeBtn("Verifier limites");
         btnAjout.setOnAction(e   -> { showAddAnimalDialog();              refreshAnimaux(); });
+        btnDetails.setOnAction(e -> showDetailsAnimalDialog());
         btnProd.setOnAction(e    -> showEnregistrerProductionDialog());
         btnEvt.setOnAction(e     -> showEvenementSanitaireDialog());
         btnLimites.setOnAction(e -> showVerifierLimitesDialog());
-        HBox actAnimaux = hrow(btnAjout, btnProd, btnEvt, btnLimites);
+        HBox actAnimaux = hrow(btnAjout, btnDetails, btnProd, btnEvt, btnLimites);
 
         // ── Actions capteurs ──────────────────────────────────────────────
         Button btnBio  = blueBtn("+ Capteur Biometrique");
@@ -449,6 +451,88 @@ public class ZonesView {
         ta.setEditable(false); ta.setWrapText(true); ta.setPrefRowCount(8);
         a.getDialogPane().setContent(ta);
         a.showAndWait();
+    }
+
+    private void showDetailsAnimalDialog() {
+        DataStore ds = DataStore.getInstance();
+        List<Animal> animaux = ds.getZoneEst().getAnimaux();
+        if (animaux.isEmpty()) { info("Aucun animal", "Ajoutez d'abord un animal."); return; }
+
+        Dialog<ButtonType> d = dialog("Details animal", "Details complets — Zone Est");
+        d.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+
+        ComboBox<Animal> cbA = animalCombo(animaux);
+        TextArea ta = new TextArea(buildAnimalDetails(animaux.get(0)));
+        ta.setEditable(false); ta.setWrapText(true); ta.setPrefRowCount(16); ta.setPrefWidth(480);
+        ta.setStyle("-fx-font-family: monospace; -fx-font-size: 12;");
+
+        cbA.setOnAction(e -> {
+            Animal sel = cbA.getValue();
+            if (sel != null) ta.setText(buildAnimalDetails(sel));
+        });
+
+        VBox box = new VBox(10, cbA, ta);
+        box.setPadding(new Insets(10));
+        d.getDialogPane().setContent(box);
+        d.showAndWait();
+    }
+
+    private String buildAnimalDetails(Animal a) {
+        StringBuilder sb = new StringBuilder();
+        String type = (a instanceof Ruminant) ? "Ruminant" : "Volaille";
+        sb.append("═══ ").append(type).append(" #").append(a.getNumero())
+          .append(" — ").append(a.getEspece()).append(" ═══\n");
+        sb.append("  Age          : ").append(a.getAge()).append(" an(s)\n");
+        sb.append("  Poids        : ").append(String.format("%.1f", a.getPoids())).append(" kg\n");
+        sb.append("  Etat sante   : ").append(a.getEtatSante()).append("\n\n");
+
+        if (a.getCapteurBiometrique() != null) {
+            var cb = a.getCapteurBiometrique();
+            sb.append("  Capteur Bio  : [").append(cb.getCode()).append("]\n");
+            sb.append("    Temp corp  : ").append(cb.getTemperatureCorporelle()).append(" °C");
+            sb.append("  (seuils: ").append(cb.getTempCorpMin()).append(" - ").append(cb.getTempCorpMax()).append(")\n");
+            sb.append("    Activite   : ").append(cb.getNiveauActivite());
+            sb.append("  (seuils: ").append(cb.getActiviteMin()).append(" - ").append(cb.getActiviteMax()).append(")\n");
+            sb.append("    Statut     : ").append(cb.getStatut()).append("\n");
+            if (!cb.getHistorique().isEmpty()) {
+                var last = cb.getHistorique().get(cb.getHistorique().size() - 1);
+                sb.append("    Dernier releve : ").append(String.format("%.2f", last.getValeur()))
+                  .append(" ").append(last.getUnite()).append(" → ").append(last.getNiveau()).append("\n");
+            } else {
+                sb.append("    Dernier releve : aucun\n");
+            }
+        } else {
+            sb.append("  Capteur Bio  : aucun\n");
+        }
+
+        sb.append("\n");
+        if (a.getCapteurGPS() != null) {
+            var cg = a.getCapteurGPS();
+            sb.append("  Capteur GPS  : [").append(cg.getCode()).append("]\n");
+            sb.append("    Statut     : ").append(cg.getStatut()).append("\n");
+            if (!cg.getHistoriqueGPS().isEmpty()) {
+                var last = cg.getHistoriqueGPS().get(cg.getHistoriqueGPS().size() - 1);
+                sb.append(String.format("    Position   : lat=%.5f  lon=%.5f%n",
+                    last.getLatitude(), last.getLongitude()));
+                sb.append("    Releves enreg. : ").append(cg.getHistoriqueGPS().size()).append("\n");
+            } else {
+                sb.append("    Aucun releve GPS\n");
+            }
+        } else {
+            sb.append("  Capteur GPS  : aucun\n");
+        }
+
+        sb.append("\n");
+        if (a.getEvenements().isEmpty()) {
+            sb.append("  Evenements sanitaires : aucun\n");
+        } else {
+            sb.append("  Evenements sanitaires (").append(a.getEvenements().size()).append(") :\n");
+            for (var ev : a.getEvenements()) {
+                sb.append("    • ").append(ev.getDescription())
+                  .append("  (nouveau poids : ").append(ev.getNouveauPoids()).append(" kg)\n");
+            }
+        }
+        return sb.toString();
     }
 
     private void showAddCapteurBioDialog() {
