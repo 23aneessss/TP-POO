@@ -40,7 +40,6 @@ public class AlertesView {
         return root;
     }
 
-    // l'en-tete du panneau
     private HBox buildHeader() {
         Label title = new Label("Panneau des alertes");
         title.setStyle("-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: " + SmartFarmingApp.TEXT + ";");
@@ -61,7 +60,6 @@ public class AlertesView {
         return row;
     }
 
-    // la barre de filtres
     private HBox buildFilterBar() {
         Button btnTous  = filterBtn("Toutes",         null);
         Button btnCrit  = filterBtn("CRITIQUE",       "CRITIQUE");
@@ -92,7 +90,6 @@ public class AlertesView {
         return b;
     }
 
-    // la barre des actions (acquitter / supprimer)
     private HBox buildActionBar() {
         Button btnAcquitter = new Button("✔ Acquitter la selection");
         btnAcquitter.setStyle(
@@ -111,7 +108,6 @@ public class AlertesView {
         return bar;
     }
 
-    // le tableau des alertes
     @SuppressWarnings("unchecked")
     private TableView<Alerte> buildTable() {
         TableView<Alerte> t = new TableView<>(filteredAlertes);
@@ -208,7 +204,6 @@ public class AlertesView {
         return c;
     }
 
-    // methodes applicatives appelees par les ecouteurs
     private void acquitterSelection() {
         Alerte selected = table.getSelectionModel().getSelectedItem();
         if (selected == null) {
@@ -247,7 +242,6 @@ public class AlertesView {
                             "-fx-font-weight: bold; -fx-font-size: 12; -fx-background-radius: 6; -fx-padding: 6 14;");
     }
 
-    // le pied de page (legende)
     private HBox buildFooter() {
         Label info = new Label(
             "● CRITIQUE : action immediate requise     " +
@@ -261,7 +255,6 @@ public class AlertesView {
         return footer;
     }
 
-    // methode utilitaire pour afficher un message
     private void showInfo(String title, String msg) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);

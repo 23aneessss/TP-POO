@@ -6,6 +6,7 @@ import com.esi.smartfarming.animal.*;
 import com.esi.smartfarming.capteur.*;
 import com.esi.smartfarming.culture.Culture;
 import com.esi.smartfarming.enums.*;
+import com.esi.smartfarming.historique.ProductionRecord;
 import com.esi.smartfarming.releve.*;
 import com.esi.smartfarming.sanitaire.EvenementSanitaire;
 import com.esi.smartfarming.zone.*;
@@ -58,6 +59,9 @@ public class DataStore implements Serializable {
     private int nextAlerteId          = 5;
     private int nextCapteurSeq        = 10;
     private int nextEspeceId          = 2;
+    private List<ProductionRecord> productions = new ArrayList<>();
+    private List<String> typesAliment = new ArrayList<>(Arrays.asList(
+        "Mais broye + luzerne", "Granules flottants", "Foin", "Granules", "Luzerne", "Ensilage"));
 
     // ── Transient JavaFX binding (rebuilt on first access) ────────────────────
     private transient ObservableList<Alerte> obsAlertes;
@@ -122,6 +126,31 @@ public class DataStore implements Serializable {
         all.addAll(zoneEst.getCapteurs());
         all.addAll(zoneSud.getCapteurs());
         return all;
+    }
+
+    public List<ProductionRecord> getProductions() {
+        if (productions == null) productions = new ArrayList<>();
+        return productions;
+    }
+
+    public List<String> getTypesAliment() {
+        if (typesAliment == null) typesAliment = new ArrayList<>();
+        return typesAliment;
+    }
+
+    public void ajouterTypeAliment(String type) {
+        if (type != null && !type.trim().isEmpty() && !getTypesAliment().contains(type.trim())) {
+            typesAliment.add(type.trim());
+            save();
+        }
+    }
+
+    public String[] toProductionRow(ProductionRecord pr) {
+        String date = new SimpleDateFormat("dd/MM/yyyy HH:mm").format(pr.getDate());
+        String valeur = (pr.getValeur() == Math.floor(pr.getValeur()))
+            ? String.valueOf((int) pr.getValeur())
+            : String.format("%.2f", pr.getValeur());
+        return new String[]{ date, pr.getZone(), pr.getType(), pr.getDetail(), valeur + " " + pr.getUnite() };
     }
 
     // ── ID / code generators ──────────────────────────────────────────────────
@@ -193,6 +222,7 @@ public class DataStore implements Serializable {
 
     public void enregistrerRendement(double rendement) {
         zoneNord.enregistrerRendement(rendement, new Date());
+        getProductions().add(new ProductionRecord(new Date(), "Zone Nord", "Rendement culture", "—", rendement, "t/ha"));
         save();
     }
 
@@ -215,11 +245,13 @@ public class DataStore implements Serializable {
 
     public void enregistrerProductionRuminant(Ruminant r, double litres) {
         r.enregistrerProduction(litres, new Date());
+        getProductions().add(new ProductionRecord(new Date(), "Zone Est", "Lait", r.getEspece(), litres, "L"));
         save();
     }
 
     public void enregistrerProductionVolaille(Volaille v, int nbOeufs) {
         v.enregistrerProduction(nbOeufs, new Date());
+        getProductions().add(new ProductionRecord(new Date(), "Zone Est", "Oeufs", v.getEspece(), nbOeufs, "oeufs"));
         save();
     }
 
@@ -244,6 +276,7 @@ public class DataStore implements Serializable {
 
     public void modifierProgAlimentationElevage(String aliment, double quantite) {
         zoneEst.setProgrammeAlimentation(new ProgrammeAlimentation(aliment, quantite));
+        ajouterTypeAliment(aliment);
         save();
     }
 
@@ -261,6 +294,7 @@ public class DataStore implements Serializable {
 
     public void modifierProgAlimentationAquacole(String aliment, double quantite) {
         zoneSud.setProgrammeAlimentation(new ProgrammeAlimentation(aliment, quantite));
+        ajouterTypeAliment(aliment);
         save();
     }
 

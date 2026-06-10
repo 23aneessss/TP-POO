@@ -36,7 +36,6 @@ public class DashboardView {
         return scroll;
     }
 
-    // les cartes de statistiques
     private HBox buildStatCards(DataStore ds) {
         int totalZones    = ds.getZones().size();
         int totalCapteurs = ds.getAllCapteurs().size();
@@ -65,7 +64,6 @@ public class DashboardView {
         return card;
     }
 
-    // les cartes des zones
     private HBox buildZoneCards(DataStore ds) {
         HBox row = new HBox(16);
         for (Zone z : ds.getZones()) {
@@ -75,7 +73,6 @@ public class DashboardView {
     }
 
     private VBox zoneCard(String[] z) {
-        // z: [code, nom, type, statut, entites, nb_capteurs]
         boolean active = "ACTIVE".equals(z[3]);
         String couleur = active ? SmartFarmingApp.GREEN : SmartFarmingApp.GRAY;
         String bgStat  = active ? "#eafaf1" : "#f2f3f4";
@@ -110,7 +107,6 @@ public class DashboardView {
         return card;
     }
 
-    // les 3 dernieres alertes
     private VBox buildRecentAlerts(DataStore ds) {
         VBox box = new VBox(8);
         int count = 0;
@@ -123,7 +119,6 @@ public class DashboardView {
     }
 
     private HBox alertRow(String[] a) {
-        // a: [id, niveau, capteur, zone, description, date, acquittee]
         boolean critique = "CRITIQUE".equals(a[1]);
         String color = critique ? SmartFarmingApp.RED    : SmartFarmingApp.ORANGE;
         String bg    = critique ? "#fde8e8"              : "#fef9e7";
@@ -151,7 +146,6 @@ public class DashboardView {
         return row;
     }
 
-    // methodes utilitaires
     private Label sectionTitle(String text) {
         Label l = new Label(text);
         l.setStyle("-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: " + SmartFarmingApp.TEXT + ";");

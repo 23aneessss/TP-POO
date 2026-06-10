@@ -15,21 +15,26 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-// Vue de gestion des capteurs : a gauche la liste, a droite le graphique d'evolution.
 public class CapteursView {
 
+    private Label listTitle;
     private VBox capteurListBox;
+    private ComboBox<String> cbZoneFilter;
 
-    // composants du panneau graphique
     private LineChart<String, Number> chart;
     private Label chartTitle;
     private Label chartSub;
     private Label chartNoData;
     private VBox chartContainer;
     private ComboBox<CapteurNumerique> cbCapteur;
+    private DatePicker dpDebut;
+    private DatePicker dpFin;
 
     public Node build() {
         SplitPane split = new SplitPane();
@@ -39,34 +44,47 @@ public class CapteursView {
         return split;
     }
 
-    // partie gauche : la liste des capteurs
     private Node buildCapteurList() {
         DataStore ds = DataStore.getInstance();
 
+        VBox box = new VBox(10);
+        box.setPadding(new Insets(16));
+        box.setStyle("-fx-background-color: " + SmartFarmingApp.BG + ";");
+
+        listTitle = new Label();
+        listTitle.setStyle("-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: " + SmartFarmingApp.TEXT + ";");
+
+        cbZoneFilter = new ComboBox<>(FXCollections.observableArrayList(
+            "Toutes zones", "Zone Nord", "Zone Est", "Zone Sud"));
+        cbZoneFilter.getSelectionModel().selectFirst();
+        cbZoneFilter.setMaxWidth(Double.MAX_VALUE);
+        cbZoneFilter.setOnAction(e -> refreshCapteurCards(ds));
+
+        Label filterLbl = new Label("Filtrer par zone :");
+        filterLbl.setStyle("-fx-font-size: 12; -fx-text-fill: " + SmartFarmingApp.SUBTEXT + ";");
+
         capteurListBox = new VBox(10);
-        capteurListBox.setPadding(new Insets(16));
-        capteurListBox.setStyle("-fx-background-color: " + SmartFarmingApp.BG + ";");
 
-        Label title = new Label("Capteurs (" + ds.getAllCapteurs().size() + ")");
-        title.setStyle("-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: " + SmartFarmingApp.TEXT + ";");
-        capteurListBox.getChildren().add(title);
-
+        box.getChildren().addAll(listTitle, filterLbl, cbZoneFilter, capteurListBox);
         refreshCapteurCards(ds);
 
-        ScrollPane scroll = new ScrollPane(capteurListBox);
+        ScrollPane scroll = new ScrollPane(box);
         scroll.setFitToWidth(true);
         scroll.setStyle("-fx-background-color:" + SmartFarmingApp.BG + ";-fx-background:" + SmartFarmingApp.BG + ";");
         return scroll;
     }
 
     private void refreshCapteurCards(DataStore ds) {
-        // on garde le titre (indice 0) et on remplace le reste
-        while (capteurListBox.getChildren().size() > 1)
-            capteurListBox.getChildren().remove(1);
-        Label title = (Label) capteurListBox.getChildren().get(0);
-        title.setText("Capteurs (" + ds.getAllCapteurs().size() + ")");
-        for (Capteur c : ds.getAllCapteurs())
+        capteurListBox.getChildren().clear();
+        String zoneFiltre = cbZoneFilter.getValue();
+        int count = 0;
+        for (Capteur c : ds.getAllCapteurs()) {
+            if (zoneFiltre != null && !zoneFiltre.equals("Toutes zones")
+                && !c.getZone().getNom().equals(zoneFiltre)) continue;
             capteurListBox.getChildren().add(capteurCard(c, ds));
+            count++;
+        }
+        listTitle.setText("Capteurs (" + count + ")");
     }
 
     private VBox capteurCard(Capteur c, DataStore ds) {
@@ -115,7 +133,6 @@ public class CapteursView {
         return card;
     }
 
-    // les boutons d'action d'un capteur (les ecouteurs)
     private HBox buildCapteurActions(Capteur c, DataStore ds,
                                       Label statLabel, Label valeur, Label niveau, Label seuils) {
         Button btnBascule = new Button();
@@ -153,7 +170,6 @@ public class CapteursView {
                 ReleveNumerique r = cn.envoyerReleve();
                 ds.save();
                 updateCapteurCardLabels(c, ds, statLabel, valeur, niveau, seuils);
-                // si ce capteur est selectionne, on rafraichit le graphique
                 if (cbCapteur != null && cbCapteur.getValue() == c) refreshChart();
                 info("Releve envoye", "[" + c.getCode() + "] Valeur = "
                     + String.format("%.2f", r.getValeur()) + " " + r.getUnite()
@@ -173,7 +189,6 @@ public class CapteursView {
         return actions;
     }
 
-    // construit le texte de toutes les mesures actuelles d'un capteur
     private Label buildAllMesures(Capteur c) {
         StringBuilder sb = new StringBuilder();
         if (c instanceof CapteurEnvironnemental) {
@@ -269,20 +284,17 @@ public class CapteursView {
                    "-fx-background-radius:4;-fx-padding:3 10;-fx-font-size:11;-fx-cursor:hand;");
     }
 
-    // partie droite : le graphique interactif par capteur
     private Node buildChartPanel() {
         VBox panel = new VBox(12);
         panel.setPadding(new Insets(20));
         panel.setStyle("-fx-background-color: " + SmartFarmingApp.BG + ";");
 
-        // le titre
         chartTitle = new Label("Historique des releves");
         chartTitle.setStyle("-fx-font-size:14;-fx-font-weight:bold;-fx-text-fill:" + SmartFarmingApp.TEXT + ";");
 
         chartSub = new Label("Selectionnez un capteur pour afficher son evolution");
         chartSub.setStyle("-fx-font-size:12;-fx-text-fill:" + SmartFarmingApp.SUBTEXT + ";");
 
-        // le menu de selection du capteur
         List<CapteurNumerique> numeriques = getAllNumeriques();
         cbCapteur = new ComboBox<>(FXCollections.observableArrayList(numeriques));
         cbCapteur.setCellFactory(lv -> capteurCell());
@@ -297,10 +309,26 @@ public class CapteursView {
         HBox selector = new HBox(10, cbCapteur, btnRefresh);
         selector.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(cbCapteur, Priority.ALWAYS);
-
         btnRefresh.setOnAction(e -> refreshChart());
 
-        // la zone du graphique
+        dpDebut = new DatePicker();
+        dpFin = new DatePicker();
+        dpDebut.setPromptText("Du");
+        dpFin.setPromptText("Au");
+        dpDebut.setPrefWidth(150);
+        dpFin.setPrefWidth(150);
+        Button btnReset = new Button("Effacer");
+        btnReset.setStyle("-fx-background-color:" + SmartFarmingApp.GRAY + ";-fx-text-fill:white;" +
+                          "-fx-background-radius:6;-fx-padding:6 14;-fx-cursor:hand;");
+        btnReset.setOnAction(e -> { dpDebut.setValue(null); dpFin.setValue(null); refreshChart(); });
+        dpDebut.setOnAction(e -> refreshChart());
+        dpFin.setOnAction(e -> refreshChart());
+
+        Label periodeLbl = new Label("Periode :");
+        periodeLbl.setStyle("-fx-font-size:12;-fx-text-fill:" + SmartFarmingApp.SUBTEXT + ";");
+        HBox periode = new HBox(10, periodeLbl, dpDebut, dpFin, btnReset);
+        periode.setAlignment(Pos.CENTER_LEFT);
+
         chartNoData = new Label("Aucun releve disponible.\nCliquez sur '↻ Releve' sur un capteur ou\n'Envoyer releves' dans une zone pour remplir l'historique.");
         chartNoData.setStyle("-fx-font-size:13;-fx-text-fill:" + SmartFarmingApp.SUBTEXT
             + ";-fx-alignment:center;-fx-text-alignment:center;");
@@ -320,12 +348,10 @@ public class CapteursView {
         chartContainer.setAlignment(Pos.CENTER);
         VBox.setVgrow(chartContainer, Priority.ALWAYS);
 
-        // l'info sur les seuils du capteur choisi
         Label seuilInfo = new Label();
         seuilInfo.setStyle("-fx-font-size:11;-fx-text-fill:" + SmartFarmingApp.SUBTEXT
             + ";-fx-background-color:#f8f9fa;-fx-background-radius:4;-fx-padding:4 10;");
 
-        // l'ecouteur du menu : on rafraichit le graphique et l'info seuils
         cbCapteur.setOnAction(e -> {
             refreshChart();
             CapteurNumerique sel = cbCapteur.getValue();
@@ -338,9 +364,8 @@ public class CapteursView {
             }
         });
 
-        panel.getChildren().addAll(chartTitle, chartSub, selector, chartContainer, seuilInfo, buildLegend());
+        panel.getChildren().addAll(chartTitle, chartSub, selector, periode, chartContainer, seuilInfo, buildLegend());
 
-        // on selectionne d'office le premier capteur ayant un historique, sinon le premier
         if (!numeriques.isEmpty()) {
             CapteurNumerique first = numeriques.get(0);
             for (CapteurNumerique cn : numeriques) {
@@ -368,19 +393,21 @@ public class CapteursView {
             return;
         }
 
-        List<ReleveNumerique> hist = sel.getHistorique();
+        List<ReleveNumerique> hist = new ArrayList<>();
+        for (ReleveNumerique r : sel.getHistorique()) {
+            if (dansIntervalle(r.getDateHeure())) hist.add(r);
+        }
 
         chartTitle.setText("Evolution — " + sel.getCode() + " (" + sel.getClass().getSimpleName().replace("Capteur","") + ")");
 
         if (hist.isEmpty()) {
-            chartSub.setText("Aucun releve enregistre — utilisez '↻ Releve' ou 'Envoyer releves'");
+            chartSub.setText("Aucun releve dans la periode choisie — utilisez '↻ Releve' ou changez la periode");
             chartContainer.getChildren().add(chartNoData);
             return;
         }
 
-        chartSub.setText(hist.size() + " releve(s) enregistre(s) — " + hist.size() + " points affiches");
+        chartSub.setText(hist.size() + " releve(s) affiche(s)");
 
-        // on reconstruit les axes du graphique
         CategoryAxis xAxis = new CategoryAxis();
         xAxis.setLabel("Heure");
         NumberAxis yAxis = new NumberAxis();
@@ -392,7 +419,6 @@ public class CapteursView {
         chart.setStyle("-fx-background-color:white;-fx-background-radius:8;");
         VBox.setVgrow(chart, Priority.ALWAYS);
 
-        // la courbe des valeurs
         XYChart.Series<String, Number> serieValeurs = new XYChart.Series<>();
         serieValeurs.setName(sel.getCode() + " (" + sel.getUnite() + ")");
 
@@ -404,7 +430,6 @@ public class CapteursView {
         }
         chart.getData().add(serieValeurs);
 
-        // les deux lignes de reference (seuil min et seuil max)
         String[] row = DataStore.getInstance().toCapteurRow(sel);
         try {
             double sMin = Double.parseDouble(row[4]);
@@ -420,7 +445,6 @@ public class CapteursView {
             }
             chart.getData().addAll(serieMin, serieMax);
 
-            // on stylise les lignes de seuil en pointilles (apres le rendu)
             javafx.application.Platform.runLater(() -> {
                 for (int s = 1; s < chart.getData().size(); s++) {
                     XYChart.Series<String, Number> serie = chart.getData().get(s);
@@ -438,7 +462,16 @@ public class CapteursView {
         chartContainer.getChildren().add(chart);
     }
 
-    // renvoie tous les capteurs numeriques de la ferme
+    private boolean dansIntervalle(Date d) {
+        if (dpDebut == null) return true;
+        LocalDate jour = d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate debut = dpDebut.getValue();
+        LocalDate fin = dpFin.getValue();
+        if (debut != null && jour.isBefore(debut)) return false;
+        if (fin != null && jour.isAfter(fin)) return false;
+        return true;
+    }
+
     private List<CapteurNumerique> getAllNumeriques() {
         List<CapteurNumerique> liste = new ArrayList<>();
         for (Capteur c : DataStore.getInstance().getAllCapteurs()) {

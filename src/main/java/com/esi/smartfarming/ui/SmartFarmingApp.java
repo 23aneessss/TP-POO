@@ -1,17 +1,5 @@
 package com.esi.smartfarming.ui;
 
-/*
- * COMPILATION ET EXECUTION :
- *
- * 1. Telecharger JavaFX SDK sur https://openjfx.io  (choisir Mac aarch64 ou x64)
- * 2. Extraire dans ~/javafx-sdk/
- * 3. Compiler :
- *    export FX=~/javafx-sdk/lib
- *    find src -name "*.java" | xargs javac --module-path $FX --add-modules javafx.controls -d out
- * 4. Executer :
- *    java --module-path $FX --add-modules javafx.controls -cp out com.esi.smartfarming.ui.SmartFarmingApp
- */
-
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -21,6 +9,10 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class SmartFarmingApp extends Application {
 
@@ -38,16 +30,13 @@ public class SmartFarmingApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        // 1. on prepare le scene graph a partir du noeud racine (root)
         BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: " + BG + ";");
         root.setTop(buildHeader());
         root.setCenter(buildTabs());
 
-        // 2. on cree la scene en lui passant le noeud racine et les dimensions
         Scene scene = new Scene(root, 1150, 780);
 
-        // 3. on prepare le Stage (le theatre), on lui ajoute la scene et on l'affiche
         primaryStage.setTitle("ESI SmartFarming — Interface de gestion");
         primaryStage.setScene(scene);
         primaryStage.setMinWidth(950);
@@ -65,7 +54,8 @@ public class SmartFarmingApp extends Application {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        Label info = new Label("Ferme ESI-Alger   |   15 Mai 2026");
+        String dateDuJour = new SimpleDateFormat("dd MMMM yyyy", Locale.FRENCH).format(new Date());
+        Label info = new Label("Ferme ESI-Alger   |   " + dateDuJour);
         info.setStyle("-fx-font-size: 12; -fx-text-fill: #a8c4e0;");
 
         HBox header = new HBox(title, sub, spacer, info);
@@ -79,12 +69,28 @@ public class SmartFarmingApp extends Application {
         TabPane tabs = new TabPane();
         tabs.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
 
-        Tab t1 = new Tab("   Dashboard   ", new DashboardView().build());
-        Tab t2 = new Tab("   Zones   ",     new ZonesView().build());
-        Tab t3 = new Tab("   Capteurs   ",  new CapteursView().build());
-        Tab t4 = new Tab("   Alertes   ",   new AlertesView().build());
+        Tab t1 = new Tab("   Dashboard   ");
+        Tab t2 = new Tab("   Zones   ");
+        Tab t3 = new Tab("   Capteurs   ");
+        Tab t4 = new Tab("   Production   ");
+        Tab t5 = new Tab("   Alertes   ");
 
-        tabs.getTabs().addAll(t1, t2, t3, t4);
+        t1.setContent(new DashboardView().build());
+        t2.setContent(new ZonesView().build());
+        t3.setContent(new CapteursView().build());
+        t4.setContent(new ProductionView().build());
+        t5.setContent(new AlertesView().build());
+
+        tabs.getTabs().addAll(t1, t2, t3, t4, t5);
+
+        tabs.getSelectionModel().selectedItemProperty().addListener((obs, ancien, courant) -> {
+            if (courant == t1) t1.setContent(new DashboardView().build());
+            else if (courant == t2) t2.setContent(new ZonesView().build());
+            else if (courant == t3) t3.setContent(new CapteursView().build());
+            else if (courant == t4) t4.setContent(new ProductionView().build());
+            else if (courant == t5) t5.setContent(new AlertesView().build());
+        });
+
         return tabs;
     }
 

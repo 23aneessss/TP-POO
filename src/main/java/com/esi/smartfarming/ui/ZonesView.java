@@ -25,7 +25,6 @@ import java.util.List;
 
 public class ZonesView {
 
-    // les donnees des tableaux (rafraichies apres chaque modification)
     private ObservableList<String[]> culturesData;
     private ObservableList<String[]> animauxData;
     private ObservableList<String[]> especesData;
@@ -33,12 +32,10 @@ public class ZonesView {
     private ObservableList<String[]> capteurEstData;
     private ObservableList<String[]> capteurSudData;
 
-    // les etiquettes de statut des zones
     private Label lblNordStatut;
     private Label lblEstStatut;
     private Label lblSudStatut;
 
-    // point d'entree de la vue
     public Node build() {
         culturesData    = FXCollections.observableArrayList();
         animauxData     = FXCollections.observableArrayList();
@@ -66,12 +63,10 @@ public class ZonesView {
         return tabs;
     }
 
-    // onglet de la zone culture
     private Node buildCultureTab() {
         DataStore ds = DataStore.getInstance();
         refreshZoneStatut(ds.getZoneNord(), lblNordStatut);
 
-        // l'en-tete
         Label name = boldLabel("Zone Nord — ZoneCulture", 16);
         Button btnSuspendre = grayBtn("Suspendre / Activer");
         btnSuspendre.setOnAction(e -> {
@@ -80,7 +75,6 @@ public class ZonesView {
         });
         HBox header = hrow(name, lblNordStatut, spacer(), btnSuspendre);
 
-        // les actions sur les cultures
         Button btnAjouterC    = greenBtn("+ Ajouter culture");
         Button btnChangerStade = blueBtn("Changer stade");
         Button btnRendement    = blueBtn("Enregistrer rendement");
@@ -89,7 +83,6 @@ public class ZonesView {
         btnRendement.setOnAction(e    -> showEnregistrerRendementDialog());
         HBox actCultures = hrow(btnAjouterC, btnChangerStade, btnRendement);
 
-        // les actions sur les capteurs
         Button btnAddEnv     = blueBtn("+ Capteur ENV");
         Button btnAddSol     = blueBtn("+ Capteur Sol");
         Button btnReleves    = orangeBtn("Envoyer releves");
@@ -98,7 +91,6 @@ public class ZonesView {
         btnReleves.setOnAction(e  -> envoyerRelevesZone(ds.getZoneNord()));
         HBox actCapteurs = hrow(btnAddEnv, btnAddSol, btnReleves);
 
-        // la mise en page
         VBox box = new VBox(12);
         box.setPadding(new Insets(20));
         box.setStyle("-fx-background-color: " + SmartFarmingApp.BG + ";");
@@ -117,8 +109,6 @@ public class ZonesView {
         scroll.setStyle(scrollStyle());
         return scroll;
     }
-
-    // les boites de dialogue de la zone culture
 
     private void showAddCultureDialog() {
         DataStore ds = DataStore.getInstance();
@@ -277,12 +267,10 @@ public class ZonesView {
         });
     }
 
-    // onglet de la zone elevage
     private Node buildElevageTab() {
         DataStore ds = DataStore.getInstance();
         refreshZoneStatut(ds.getZoneEst(), lblEstStatut);
 
-        // l'en-tete
         Label name = boldLabel("Zone Est — ZoneElevage", 16);
         Button btnSuspendre = grayBtn("Suspendre / Activer");
         btnSuspendre.setOnAction(e -> {
@@ -291,7 +279,6 @@ public class ZonesView {
         });
         HBox header = hrow(name, lblEstStatut, spacer(), btnSuspendre);
 
-        // le programme d'alimentation
         Label progLabel = progLabel(ds);
         Button btnModifProg = grayBtn("Modifier alimentation");
         btnModifProg.setOnAction(e -> { showModifierAlimentationElevageDialog(); progLabel.setText(progText(ds)); });
@@ -299,7 +286,6 @@ public class ZonesView {
         progRow.setPadding(new Insets(6, 10, 6, 10));
         progRow.setStyle("-fx-background-color: #eaf4fb; -fx-background-radius: 6;");
 
-        // les actions sur les animaux
         Button btnAjout   = greenBtn("+ Ajouter animal");
         Button btnDetails = blueBtn("Voir details");
         Button btnProd    = blueBtn("Enregistrer production");
@@ -312,14 +298,12 @@ public class ZonesView {
         btnLimites.setOnAction(e -> showVerifierLimitesDialog());
         HBox actAnimaux = hrow(btnAjout, btnDetails, btnProd, btnEvt, btnLimites);
 
-        // les actions sur les capteurs
         Button btnBio  = blueBtn("+ Capteur Biometrique");
         Button btnGPS  = blueBtn("+ Capteur GPS");
         btnBio.setOnAction(e -> { showAddCapteurBioDialog(); refreshCapteurEst(); });
         btnGPS.setOnAction(e -> { showAddCapteurGPSDialog(); refreshCapteurEst(); });
         HBox actCapteurs = hrow(btnBio, btnGPS);
 
-        // la mise en page
         VBox box = new VBox(12);
         box.setPadding(new Insets(20));
         box.setStyle("-fx-background-color: " + SmartFarmingApp.BG + ";");
@@ -338,8 +322,6 @@ public class ZonesView {
         scroll.setStyle(scrollStyle());
         return scroll;
     }
-
-    // les boites de dialogue de la zone elevage
 
     private void showAddAnimalDialog() {
         DataStore ds = DataStore.getInstance();
@@ -609,20 +591,32 @@ public class ZonesView {
         Dialog<ButtonType> d = dialog("Alimentation", "Modifier le programme — Zone Est");
         ButtonType ok = okBtn();
         d.getDialogPane().getButtonTypes().addAll(ok, ButtonType.CANCEL);
-        TextField tfAliment  = new TextField(ds.getZoneEst().getProgrammeAlimentation().getTypeAliment());
+
+        ComboBox<String> cbAliment = new ComboBox<>(FXCollections.observableArrayList(ds.getTypesAliment()));
+        cbAliment.setEditable(true);
+        cbAliment.getEditor().setText(ds.getZoneEst().getProgrammeAlimentation().getTypeAliment());
+        cbAliment.setValue(ds.getZoneEst().getProgrammeAlimentation().getTypeAliment());
+        cbAliment.setMaxWidth(Double.MAX_VALUE);
         TextField tfQuantite = new TextField(String.valueOf(ds.getZoneEst().getProgrammeAlimentation().getQuantiteParRepas()));
+
         GridPane g = grid();
-        addRow(g, 0, "Type d'aliment :",    tfAliment);
+        addRow(g, 0, "Type d'aliment :",    cbAliment);
         addRow(g, 1, "Quantite / repas :", tfQuantite);
+        Label note = new Label("Choisissez un type existant ou saisissez-en un nouveau.");
+        note.setStyle("-fx-text-fill: gray; -fx-font-size: 11;");
+        g.add(note, 0, 2, 2, 1);
         d.getDialogPane().setContent(g);
+
         d.showAndWait().ifPresent(btn -> {
             if (btn != ok) return;
-            try { ds.modifierProgAlimentationElevage(tfAliment.getText().trim(), Double.parseDouble(tfQuantite.getText())); }
-            catch (Exception ex) { erreur(ex.getMessage()); }
+            try {
+                String aliment = cbAliment.getEditor().getText();
+                if (aliment == null || aliment.trim().isEmpty()) aliment = cbAliment.getValue();
+                ds.modifierProgAlimentationElevage(aliment.trim(), Double.parseDouble(tfQuantite.getText()));
+            } catch (Exception ex) { erreur(ex.getMessage()); }
         });
     }
 
-    // onglet de la zone aquacole
     private Node buildAquacoleTab() {
         DataStore ds = DataStore.getInstance();
         refreshZoneStatut(ds.getZoneSud(), lblSudStatut);
@@ -635,7 +629,6 @@ public class ZonesView {
         });
         HBox header = hrow(name, lblSudStatut, spacer(), btnSuspendre);
 
-        // le programme d'alimentation
         Label progLbl = progLabelAquacole(ds);
         Button btnModifProg = grayBtn("Modifier alimentation");
         btnModifProg.setOnAction(e -> { showModifierAlimentationAquacoleDialog(); progLbl.setText(progTextAquacole(ds)); });
@@ -643,12 +636,10 @@ public class ZonesView {
         progRow.setPadding(new Insets(6, 10, 6, 10));
         progRow.setStyle("-fx-background-color: #eaf4fb; -fx-background-radius: 6;");
 
-        // les actions sur les especes
         Button btnAjoutE = greenBtn("+ Ajouter espece");
         btnAjoutE.setOnAction(e -> { showAddEspeceDialog(); refreshEspeces(); });
         HBox actEsp = hrow(btnAjoutE);
 
-        // les actions sur les capteurs
         Button btnAddEau  = blueBtn("+ Capteur Eau");
         Button btnReleves = orangeBtn("Envoyer releves");
         btnAddEau.setOnAction(e  -> { showAddCapteurEauDialog(); refreshCapteurSud(); });
@@ -673,8 +664,6 @@ public class ZonesView {
         scroll.setStyle(scrollStyle());
         return scroll;
     }
-
-    // les boites de dialogue de la zone aquacole
 
     private void showAddEspeceDialog() {
         DataStore ds = DataStore.getInstance();
@@ -739,20 +728,32 @@ public class ZonesView {
         Dialog<ButtonType> d = dialog("Alimentation", "Modifier le programme — Zone Sud");
         ButtonType ok = okBtn();
         d.getDialogPane().getButtonTypes().addAll(ok, ButtonType.CANCEL);
-        TextField tfAliment  = new TextField(ds.getZoneSud().getProgrammeAlimentation().getTypeAliment());
+
+        ComboBox<String> cbAliment = new ComboBox<>(FXCollections.observableArrayList(ds.getTypesAliment()));
+        cbAliment.setEditable(true);
+        cbAliment.getEditor().setText(ds.getZoneSud().getProgrammeAlimentation().getTypeAliment());
+        cbAliment.setValue(ds.getZoneSud().getProgrammeAlimentation().getTypeAliment());
+        cbAliment.setMaxWidth(Double.MAX_VALUE);
         TextField tfQuantite = new TextField(String.valueOf(ds.getZoneSud().getProgrammeAlimentation().getQuantiteParRepas()));
+
         GridPane g = grid();
-        addRow(g, 0, "Type d'aliment :",    tfAliment);
+        addRow(g, 0, "Type d'aliment :",    cbAliment);
         addRow(g, 1, "Quantite / repas :", tfQuantite);
+        Label note = new Label("Choisissez un type existant ou saisissez-en un nouveau.");
+        note.setStyle("-fx-text-fill: gray; -fx-font-size: 11;");
+        g.add(note, 0, 2, 2, 1);
         d.getDialogPane().setContent(g);
+
         d.showAndWait().ifPresent(btn -> {
             if (btn != ok) return;
-            try { ds.modifierProgAlimentationAquacole(tfAliment.getText().trim(), Double.parseDouble(tfQuantite.getText())); }
-            catch (Exception ex) { erreur(ex.getMessage()); }
+            try {
+                String aliment = cbAliment.getEditor().getText();
+                if (aliment == null || aliment.trim().isEmpty()) aliment = cbAliment.getValue();
+                ds.modifierProgAlimentationAquacole(aliment.trim(), Double.parseDouble(tfQuantite.getText()));
+            } catch (Exception ex) { erreur(ex.getMessage()); }
         });
     }
 
-    // envoi des releves d'une zone (appele par le bouton "Envoyer releves")
     private void envoyerRelevesZone(com.esi.smartfarming.zone.Zone zone) {
         List<String> rapport = DataStore.getInstance().envoyerRelevesZone(zone);
         if (rapport.isEmpty()) {
@@ -769,8 +770,6 @@ public class ZonesView {
         a.getDialogPane().setContent(ta);
         a.showAndWait();
     }
-
-    // les tableaux des entites
 
     @SuppressWarnings("unchecked")
     private TableView<String[]> cultureTable() {
@@ -816,8 +815,6 @@ public class ZonesView {
         );
         return t;
     }
-
-    // rafraichissement des donnees des tableaux
 
     private void refreshCultures() {
         DataStore ds = DataStore.getInstance();
@@ -869,8 +866,6 @@ public class ZonesView {
             + "-fx-background-color: " + (active ? "#eafaf1" : "#f2f3f4") + ";"
             + "-fx-background-radius: 4; -fx-padding: 3 10;");
     }
-
-    // construction des colonnes des tableaux
 
     private TableColumn<String[], String> col(String h, int idx) {
         TableColumn<String[], String> c = new TableColumn<>(h);
@@ -955,8 +950,6 @@ public class ZonesView {
         });
         return c;
     }
-
-    // methodes utilitaires (composants reutilisables)
 
     private Label sectionLabel(String t) {
         Label l = new Label(t);
