@@ -1,10 +1,14 @@
 package com.esi.smartfarming.ui;
 
+import com.esi.smartfarming.alimentation.ProgrammeAlimentation;
 import com.esi.smartfarming.animal.*;
 import com.esi.smartfarming.capteur.*;
 import com.esi.smartfarming.culture.Culture;
 import com.esi.smartfarming.data.DataStore;
 import com.esi.smartfarming.enums.*;
+import com.esi.smartfarming.releve.ReleveGPS;
+import com.esi.smartfarming.releve.ReleveNumerique;
+import com.esi.smartfarming.sanitaire.EvenementSanitaire;
 import com.esi.smartfarming.zone.*;
 
 import javafx.beans.property.SimpleStringProperty;
@@ -18,11 +22,10 @@ import javafx.scene.layout.*;
 
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ZonesView {
 
-    // ── Observable table data (refreshed after mutations) ─────────────────────
+    // les donnees des tableaux (rafraichies apres chaque modification)
     private ObservableList<String[]> culturesData;
     private ObservableList<String[]> animauxData;
     private ObservableList<String[]> especesData;
@@ -30,22 +33,26 @@ public class ZonesView {
     private ObservableList<String[]> capteurEstData;
     private ObservableList<String[]> capteurSudData;
 
-    // ── Status labels ─────────────────────────────────────────────────────────
+    // les etiquettes de statut des zones
     private Label lblNordStatut;
     private Label lblEstStatut;
     private Label lblSudStatut;
 
-    // ── Entry point ───────────────────────────────────────────────────────────
-
+    // point d'entree de la vue
     public Node build() {
-        DataStore ds = DataStore.getInstance();
+        culturesData    = FXCollections.observableArrayList();
+        animauxData     = FXCollections.observableArrayList();
+        especesData     = FXCollections.observableArrayList();
+        capteurNordData = FXCollections.observableArrayList();
+        capteurEstData  = FXCollections.observableArrayList();
+        capteurSudData  = FXCollections.observableArrayList();
 
-        culturesData    = obs(ds.getZoneNord().getCultures().stream().map(ds::toCultureRow).collect(Collectors.toList()));
-        animauxData     = obs(ds.getZoneEst().getAnimaux().stream().map(ds::toAnimalRow).collect(Collectors.toList()));
-        especesData     = obs(ds.getZoneSud().getEspeces().stream().map(ds::toEspeceRow).collect(Collectors.toList()));
-        capteurNordData = obs(ds.getZoneNord().getCapteurs().stream().map(ds::toCapteurRow).collect(Collectors.toList()));
-        capteurEstData  = obs(ds.getZoneEst().getCapteurs().stream().map(ds::toCapteurRow).collect(Collectors.toList()));
-        capteurSudData  = obs(ds.getZoneSud().getCapteurs().stream().map(ds::toCapteurRow).collect(Collectors.toList()));
+        refreshCultures();
+        refreshAnimaux();
+        refreshEspeces();
+        refreshCapteurNord();
+        refreshCapteurEst();
+        refreshCapteurSud();
 
         lblNordStatut = new Label(); lblEstStatut = new Label(); lblSudStatut = new Label();
 
@@ -59,15 +66,12 @@ public class ZonesView {
         return tabs;
     }
 
-    // =========================================================================
-    // ZONE CULTURE
-    // =========================================================================
-
+    // onglet de la zone culture
     private Node buildCultureTab() {
         DataStore ds = DataStore.getInstance();
         refreshZoneStatut(ds.getZoneNord(), lblNordStatut);
 
-        // ── Header ──────────────────────────────────────────────────────────
+        // l'en-tete
         Label name = boldLabel("Zone Nord — ZoneCulture", 16);
         Button btnSuspendre = grayBtn("Suspendre / Activer");
         btnSuspendre.setOnAction(e -> {
@@ -76,7 +80,7 @@ public class ZonesView {
         });
         HBox header = hrow(name, lblNordStatut, spacer(), btnSuspendre);
 
-        // ── Actions cultures ─────────────────────────────────────────────────
+        // les actions sur les cultures
         Button btnAjouterC    = greenBtn("+ Ajouter culture");
         Button btnChangerStade = blueBtn("Changer stade");
         Button btnRendement    = blueBtn("Enregistrer rendement");
@@ -85,7 +89,7 @@ public class ZonesView {
         btnRendement.setOnAction(e    -> showEnregistrerRendementDialog());
         HBox actCultures = hrow(btnAjouterC, btnChangerStade, btnRendement);
 
-        // ── Actions capteurs ─────────────────────────────────────────────────
+        // les actions sur les capteurs
         Button btnAddEnv     = blueBtn("+ Capteur ENV");
         Button btnAddSol     = blueBtn("+ Capteur Sol");
         Button btnReleves    = orangeBtn("Envoyer releves");
@@ -94,7 +98,7 @@ public class ZonesView {
         btnReleves.setOnAction(e  -> envoyerRelevesZone(ds.getZoneNord()));
         HBox actCapteurs = hrow(btnAddEnv, btnAddSol, btnReleves);
 
-        // ── Layout ───────────────────────────────────────────────────────────
+        // la mise en page
         VBox box = new VBox(12);
         box.setPadding(new Insets(20));
         box.setStyle("-fx-background-color: " + SmartFarmingApp.BG + ";");
@@ -114,7 +118,7 @@ public class ZonesView {
         return scroll;
     }
 
-    // ── Culture dialogs ───────────────────────────────────────────────────────
+    // les boites de dialogue de la zone culture
 
     private void showAddCultureDialog() {
         DataStore ds = DataStore.getInstance();
@@ -273,15 +277,12 @@ public class ZonesView {
         });
     }
 
-    // =========================================================================
-    // ZONE ELEVAGE
-    // =========================================================================
-
+    // onglet de la zone elevage
     private Node buildElevageTab() {
         DataStore ds = DataStore.getInstance();
         refreshZoneStatut(ds.getZoneEst(), lblEstStatut);
 
-        // ── Header ──────────────────────────────────────────────────────────
+        // l'en-tete
         Label name = boldLabel("Zone Est — ZoneElevage", 16);
         Button btnSuspendre = grayBtn("Suspendre / Activer");
         btnSuspendre.setOnAction(e -> {
@@ -290,7 +291,7 @@ public class ZonesView {
         });
         HBox header = hrow(name, lblEstStatut, spacer(), btnSuspendre);
 
-        // ── Programme alimentation ────────────────────────────────────────
+        // le programme d'alimentation
         Label progLabel = progLabel(ds);
         Button btnModifProg = grayBtn("Modifier alimentation");
         btnModifProg.setOnAction(e -> { showModifierAlimentationElevageDialog(); progLabel.setText(progText(ds)); });
@@ -298,7 +299,7 @@ public class ZonesView {
         progRow.setPadding(new Insets(6, 10, 6, 10));
         progRow.setStyle("-fx-background-color: #eaf4fb; -fx-background-radius: 6;");
 
-        // ── Actions animaux ───────────────────────────────────────────────
+        // les actions sur les animaux
         Button btnAjout   = greenBtn("+ Ajouter animal");
         Button btnDetails = blueBtn("Voir details");
         Button btnProd    = blueBtn("Enregistrer production");
@@ -311,14 +312,14 @@ public class ZonesView {
         btnLimites.setOnAction(e -> showVerifierLimitesDialog());
         HBox actAnimaux = hrow(btnAjout, btnDetails, btnProd, btnEvt, btnLimites);
 
-        // ── Actions capteurs ──────────────────────────────────────────────
+        // les actions sur les capteurs
         Button btnBio  = blueBtn("+ Capteur Biometrique");
         Button btnGPS  = blueBtn("+ Capteur GPS");
         btnBio.setOnAction(e -> { showAddCapteurBioDialog(); refreshCapteurEst(); });
         btnGPS.setOnAction(e -> { showAddCapteurGPSDialog(); refreshCapteurEst(); });
         HBox actCapteurs = hrow(btnBio, btnGPS);
 
-        // ── Layout ───────────────────────────────────────────────────────
+        // la mise en page
         VBox box = new VBox(12);
         box.setPadding(new Insets(20));
         box.setStyle("-fx-background-color: " + SmartFarmingApp.BG + ";");
@@ -338,7 +339,7 @@ public class ZonesView {
         return scroll;
     }
 
-    // ── Elevage dialogs ───────────────────────────────────────────────────────
+    // les boites de dialogue de la zone elevage
 
     private void showAddAnimalDialog() {
         DataStore ds = DataStore.getInstance();
@@ -367,9 +368,11 @@ public class ZonesView {
                 int    id    = ds.nextAnimalId();
                 double poids = Double.parseDouble(tfPoids.getText());
                 int    age   = Integer.parseInt(tfAge.getText());
-                Animal a = "Ruminant".equals(cbType.getValue())
-                    ? new Ruminant(id, tfEspece.getText().trim(), age, poids)
-                    : new Volaille(id, tfEspece.getText().trim(), age, poids);
+                Animal a;
+                if ("Ruminant".equals(cbType.getValue()))
+                    a = new Ruminant(id, tfEspece.getText().trim(), age, poids);
+                else
+                    a = new Volaille(id, tfEspece.getText().trim(), age, poids);
                 a.setEtatSante(cbSante.getValue());
                 ds.ajouterAnimal(a);
             } catch (Exception ex) { erreur(ex.getMessage()); }
@@ -390,9 +393,11 @@ public class ZonesView {
         TextField tfVal = tf("0");
         cbA.setOnAction(e -> {
             Animal sel = cbA.getValue();
-            lblUnite.setText(sel instanceof Ruminant ? "Litres de lait :" : "Nombre d'oeufs :");
+            if (sel instanceof Ruminant) lblUnite.setText("Litres de lait :");
+            else                         lblUnite.setText("Nombre d'oeufs :");
         });
-        if (!animaux.isEmpty()) lblUnite.setText(animaux.get(0) instanceof Ruminant ? "Litres de lait :" : "Nombre d'oeufs :");
+        if (animaux.get(0) instanceof Ruminant) lblUnite.setText("Litres de lait :");
+        else                                    lblUnite.setText("Nombre d'oeufs :");
 
         GridPane g = grid();
         addRow(g, 0, "Animal :", cbA);
@@ -487,7 +492,7 @@ public class ZonesView {
         sb.append("  Etat sante   : ").append(a.getEtatSante()).append("\n\n");
 
         if (a.getCapteurBiometrique() != null) {
-            var cb = a.getCapteurBiometrique();
+            CapteurBiometrique cb = a.getCapteurBiometrique();
             sb.append("  Capteur Bio  : [").append(cb.getCode()).append("]\n");
             sb.append("    Temp corp  : ").append(cb.getTemperatureCorporelle()).append(" °C");
             sb.append("  (seuils: ").append(cb.getTempCorpMin()).append(" - ").append(cb.getTempCorpMax()).append(")\n");
@@ -495,7 +500,7 @@ public class ZonesView {
             sb.append("  (seuils: ").append(cb.getActiviteMin()).append(" - ").append(cb.getActiviteMax()).append(")\n");
             sb.append("    Statut     : ").append(cb.getStatut()).append("\n");
             if (!cb.getHistorique().isEmpty()) {
-                var last = cb.getHistorique().get(cb.getHistorique().size() - 1);
+                ReleveNumerique last = cb.getHistorique().get(cb.getHistorique().size() - 1);
                 sb.append("    Dernier releve : ").append(String.format("%.2f", last.getValeur()))
                   .append(" ").append(last.getUnite()).append(" → ").append(last.getNiveau()).append("\n");
             } else {
@@ -507,11 +512,11 @@ public class ZonesView {
 
         sb.append("\n");
         if (a.getCapteurGPS() != null) {
-            var cg = a.getCapteurGPS();
+            CapteurGPS cg = a.getCapteurGPS();
             sb.append("  Capteur GPS  : [").append(cg.getCode()).append("]\n");
             sb.append("    Statut     : ").append(cg.getStatut()).append("\n");
             if (!cg.getHistoriqueGPS().isEmpty()) {
-                var last = cg.getHistoriqueGPS().get(cg.getHistoriqueGPS().size() - 1);
+                ReleveGPS last = cg.getHistoriqueGPS().get(cg.getHistoriqueGPS().size() - 1);
                 sb.append(String.format("    Position   : lat=%.5f  lon=%.5f%n",
                     last.getLatitude(), last.getLongitude()));
                 sb.append("    Releves enreg. : ").append(cg.getHistoriqueGPS().size()).append("\n");
@@ -527,7 +532,7 @@ public class ZonesView {
             sb.append("  Evenements sanitaires : aucun\n");
         } else {
             sb.append("  Evenements sanitaires (").append(a.getEvenements().size()).append(") :\n");
-            for (var ev : a.getEvenements()) {
+            for (EvenementSanitaire ev : a.getEvenements()) {
                 sb.append("    • ").append(ev.getDescription())
                   .append("  (nouveau poids : ").append(ev.getNouveauPoids()).append(" kg)\n");
             }
@@ -617,10 +622,7 @@ public class ZonesView {
         });
     }
 
-    // =========================================================================
-    // ZONE AQUACOLE
-    // =========================================================================
-
+    // onglet de la zone aquacole
     private Node buildAquacoleTab() {
         DataStore ds = DataStore.getInstance();
         refreshZoneStatut(ds.getZoneSud(), lblSudStatut);
@@ -633,7 +635,7 @@ public class ZonesView {
         });
         HBox header = hrow(name, lblSudStatut, spacer(), btnSuspendre);
 
-        // ── Alimentation ─────────────────────────────────────────────────
+        // le programme d'alimentation
         Label progLbl = progLabelAquacole(ds);
         Button btnModifProg = grayBtn("Modifier alimentation");
         btnModifProg.setOnAction(e -> { showModifierAlimentationAquacoleDialog(); progLbl.setText(progTextAquacole(ds)); });
@@ -641,12 +643,12 @@ public class ZonesView {
         progRow.setPadding(new Insets(6, 10, 6, 10));
         progRow.setStyle("-fx-background-color: #eaf4fb; -fx-background-radius: 6;");
 
-        // ── Actions especes ───────────────────────────────────────────────
+        // les actions sur les especes
         Button btnAjoutE = greenBtn("+ Ajouter espece");
         btnAjoutE.setOnAction(e -> { showAddEspeceDialog(); refreshEspeces(); });
         HBox actEsp = hrow(btnAjoutE);
 
-        // ── Actions capteurs ──────────────────────────────────────────────
+        // les actions sur les capteurs
         Button btnAddEau  = blueBtn("+ Capteur Eau");
         Button btnReleves = orangeBtn("Envoyer releves");
         btnAddEau.setOnAction(e  -> { showAddCapteurEauDialog(); refreshCapteurSud(); });
@@ -672,7 +674,7 @@ public class ZonesView {
         return scroll;
     }
 
-    // ── Aquacole dialogs ──────────────────────────────────────────────────────
+    // les boites de dialogue de la zone aquacole
 
     private void showAddEspeceDialog() {
         DataStore ds = DataStore.getInstance();
@@ -750,10 +752,7 @@ public class ZonesView {
         });
     }
 
-    // =========================================================================
-    // RELEVES (common)
-    // =========================================================================
-
+    // envoi des releves d'une zone (appele par le bouton "Envoyer releves")
     private void envoyerRelevesZone(com.esi.smartfarming.zone.Zone zone) {
         List<String> rapport = DataStore.getInstance().envoyerRelevesZone(zone);
         if (rapport.isEmpty()) {
@@ -771,9 +770,7 @@ public class ZonesView {
         a.showAndWait();
     }
 
-    // =========================================================================
-    // TABLES
-    // =========================================================================
+    // les tableaux des entites
 
     @SuppressWarnings("unchecked")
     private TableView<String[]> cultureTable() {
@@ -820,38 +817,48 @@ public class ZonesView {
         return t;
     }
 
-    // =========================================================================
-    // REFRESH
-    // =========================================================================
+    // rafraichissement des donnees des tableaux
 
     private void refreshCultures() {
         DataStore ds = DataStore.getInstance();
-        culturesData.setAll(ds.getZoneNord().getCultures().stream().map(ds::toCultureRow).collect(Collectors.toList()));
+        culturesData.clear();
+        for (Culture c : ds.getZoneNord().getCultures())
+            culturesData.add(ds.toCultureRow(c));
     }
 
     private void refreshAnimaux() {
         DataStore ds = DataStore.getInstance();
-        animauxData.setAll(ds.getZoneEst().getAnimaux().stream().map(ds::toAnimalRow).collect(Collectors.toList()));
+        animauxData.clear();
+        for (Animal a : ds.getZoneEst().getAnimaux())
+            animauxData.add(ds.toAnimalRow(a));
     }
 
     private void refreshEspeces() {
         DataStore ds = DataStore.getInstance();
-        especesData.setAll(ds.getZoneSud().getEspeces().stream().map(ds::toEspeceRow).collect(Collectors.toList()));
+        especesData.clear();
+        for (EspeceAquacole e : ds.getZoneSud().getEspeces())
+            especesData.add(ds.toEspeceRow(e));
     }
 
     private void refreshCapteurNord() {
         DataStore ds = DataStore.getInstance();
-        capteurNordData.setAll(ds.getZoneNord().getCapteurs().stream().map(ds::toCapteurRow).collect(Collectors.toList()));
+        capteurNordData.clear();
+        for (Capteur c : ds.getZoneNord().getCapteurs())
+            capteurNordData.add(ds.toCapteurRow(c));
     }
 
     private void refreshCapteurEst() {
         DataStore ds = DataStore.getInstance();
-        capteurEstData.setAll(ds.getZoneEst().getCapteurs().stream().map(ds::toCapteurRow).collect(Collectors.toList()));
+        capteurEstData.clear();
+        for (Capteur c : ds.getZoneEst().getCapteurs())
+            capteurEstData.add(ds.toCapteurRow(c));
     }
 
     private void refreshCapteurSud() {
         DataStore ds = DataStore.getInstance();
-        capteurSudData.setAll(ds.getZoneSud().getCapteurs().stream().map(ds::toCapteurRow).collect(Collectors.toList()));
+        capteurSudData.clear();
+        for (Capteur c : ds.getZoneSud().getCapteurs())
+            capteurSudData.add(ds.toCapteurRow(c));
     }
 
     private void refreshZoneStatut(Zone z, Label lbl) {
@@ -863,9 +870,7 @@ public class ZonesView {
             + "-fx-background-radius: 4; -fx-padding: 3 10;");
     }
 
-    // =========================================================================
-    // COLUMN FACTORIES
-    // =========================================================================
+    // construction des colonnes des tableaux
 
     private TableColumn<String[], String> col(String h, int idx) {
         TableColumn<String[], String> c = new TableColumn<>(h);
@@ -882,12 +887,12 @@ public class ZonesView {
                 if (v == null || empty) { setText(null); setStyle(""); return; }
                 setText(v);
                 switch (v) {
-                    case "SEMIS"       -> setStyle("-fx-text-fill: " + SmartFarmingApp.PURPLE + ";");
-                    case "GERMINATION" -> setStyle("-fx-text-fill: " + SmartFarmingApp.BLUE + ";");
-                    case "CROISSANCE"  -> setStyle("-fx-text-fill: " + SmartFarmingApp.GREEN + ";");
-                    case "MATURITE"    -> setStyle("-fx-text-fill: " + SmartFarmingApp.ORANGE + "; -fx-font-weight:bold;");
-                    case "RECOLTE"     -> setStyle("-fx-text-fill: " + SmartFarmingApp.RED + "; -fx-font-weight:bold;");
-                    default -> setStyle("");
+                    case "SEMIS":       setStyle("-fx-text-fill: " + SmartFarmingApp.PURPLE + ";"); break;
+                    case "GERMINATION": setStyle("-fx-text-fill: " + SmartFarmingApp.BLUE + ";"); break;
+                    case "CROISSANCE":  setStyle("-fx-text-fill: " + SmartFarmingApp.GREEN + ";"); break;
+                    case "MATURITE":    setStyle("-fx-text-fill: " + SmartFarmingApp.ORANGE + "; -fx-font-weight:bold;"); break;
+                    case "RECOLTE":     setStyle("-fx-text-fill: " + SmartFarmingApp.RED + "; -fx-font-weight:bold;"); break;
+                    default:            setStyle("");
                 }
             }
         });
@@ -903,10 +908,10 @@ public class ZonesView {
                 if (v == null || empty) { setText(null); setStyle(""); return; }
                 setText(v);
                 switch (v) {
-                    case "SAIN"        -> setStyle("-fx-text-fill: " + SmartFarmingApp.GREEN  + "; -fx-font-weight:bold;");
-                    case "MALADE"      -> setStyle("-fx-text-fill: " + SmartFarmingApp.RED    + "; -fx-font-weight:bold;");
-                    case "QUARANTAINE" -> setStyle("-fx-text-fill: " + SmartFarmingApp.ORANGE + "; -fx-font-weight:bold;");
-                    default -> setStyle("");
+                    case "SAIN":        setStyle("-fx-text-fill: " + SmartFarmingApp.GREEN  + "; -fx-font-weight:bold;"); break;
+                    case "MALADE":      setStyle("-fx-text-fill: " + SmartFarmingApp.RED    + "; -fx-font-weight:bold;"); break;
+                    case "QUARANTAINE": setStyle("-fx-text-fill: " + SmartFarmingApp.ORANGE + "; -fx-font-weight:bold;"); break;
+                    default:            setStyle("");
                 }
             }
         });
@@ -922,10 +927,10 @@ public class ZonesView {
                 if (v == null || empty) { setText(null); setStyle(""); return; }
                 setText(v);
                 switch (v) {
-                    case "ACTIF"      -> setStyle("-fx-text-fill: " + SmartFarmingApp.GREEN + "; -fx-font-weight:bold;");
-                    case "DEFAILLANT" -> setStyle("-fx-text-fill: " + SmartFarmingApp.RED   + "; -fx-font-weight:bold;");
-                    case "SUSPENDU"   -> setStyle("-fx-text-fill: " + SmartFarmingApp.GRAY  + "; -fx-font-weight:bold;");
-                    default -> setStyle("");
+                    case "ACTIF":      setStyle("-fx-text-fill: " + SmartFarmingApp.GREEN + "; -fx-font-weight:bold;"); break;
+                    case "DEFAILLANT": setStyle("-fx-text-fill: " + SmartFarmingApp.RED   + "; -fx-font-weight:bold;"); break;
+                    case "SUSPENDU":   setStyle("-fx-text-fill: " + SmartFarmingApp.GRAY  + "; -fx-font-weight:bold;"); break;
+                    default:           setStyle("");
                 }
             }
         });
@@ -941,19 +946,17 @@ public class ZonesView {
                 if (v == null || empty) { setText(null); setStyle(""); return; }
                 setText(v);
                 switch (v) {
-                    case "NORMAL"        -> setStyle("-fx-text-fill: " + SmartFarmingApp.GREEN  + "; -fx-font-weight:bold;");
-                    case "AVERTISSEMENT" -> setStyle("-fx-text-fill: " + SmartFarmingApp.ORANGE + "; -fx-font-weight:bold;");
-                    case "CRITIQUE"      -> setStyle("-fx-text-fill: " + SmartFarmingApp.RED    + "; -fx-font-weight:bold;");
-                    default -> setStyle("");
+                    case "NORMAL":        setStyle("-fx-text-fill: " + SmartFarmingApp.GREEN  + "; -fx-font-weight:bold;"); break;
+                    case "AVERTISSEMENT": setStyle("-fx-text-fill: " + SmartFarmingApp.ORANGE + "; -fx-font-weight:bold;"); break;
+                    case "CRITIQUE":      setStyle("-fx-text-fill: " + SmartFarmingApp.RED    + "; -fx-font-weight:bold;"); break;
+                    default:              setStyle("");
                 }
             }
         });
         return c;
     }
 
-    // =========================================================================
-    // UI HELPERS
-    // =========================================================================
+    // methodes utilitaires (composants reutilisables)
 
     private Label sectionLabel(String t) {
         Label l = new Label(t);
@@ -1026,8 +1029,9 @@ public class ZonesView {
         return new ListCell<>() {
             @Override protected void updateItem(Animal a, boolean empty) {
                 super.updateItem(a, empty);
-                setText((a == null || empty) ? null : "#" + a.getNumero() + " " + a.getEspece()
-                    + " [" + (a instanceof Ruminant ? "Ruminant" : "Volaille") + "]");
+                if (a == null || empty) { setText(null); return; }
+                String type = (a instanceof Ruminant) ? "Ruminant" : "Volaille";
+                setText("#" + a.getNumero() + " " + a.getEspece() + " [" + type + "]");
             }
         };
     }
@@ -1036,7 +1040,8 @@ public class ZonesView {
         return new ListCell<>() {
             @Override protected void updateItem(Culture c, boolean empty) {
                 super.updateItem(c, empty);
-                setText((c == null || empty) ? null : c.getNom() + " [" + c.getStageCroissance() + "]");
+                if (c == null || empty) { setText(null); return; }
+                setText(c.getNom() + " [" + c.getStageCroissance() + "]");
             }
         };
     }
@@ -1058,10 +1063,6 @@ public class ZonesView {
         return "-fx-background-color: " + SmartFarmingApp.BG + "; -fx-background: " + SmartFarmingApp.BG + ";";
     }
 
-    private ObservableList<String[]> obs(java.util.Collection<String[]> c) {
-        return FXCollections.observableArrayList(c);
-    }
-
     private Label progLabel(DataStore ds) {
         Label l = new Label(progText(ds));
         l.setStyle("-fx-font-size:12; -fx-text-fill:" + SmartFarmingApp.TEXT + ";");
@@ -1069,7 +1070,7 @@ public class ZonesView {
     }
 
     private String progText(DataStore ds) {
-        var p = ds.getZoneEst().getProgrammeAlimentation();
+        ProgrammeAlimentation p = ds.getZoneEst().getProgrammeAlimentation();
         return "Alimentation : " + p.getTypeAliment() + "  |  " + p.getQuantiteParRepas() + " kg/repas";
     }
 
@@ -1080,7 +1081,7 @@ public class ZonesView {
     }
 
     private String progTextAquacole(DataStore ds) {
-        var p = ds.getZoneSud().getProgrammeAlimentation();
+        ProgrammeAlimentation p = ds.getZoneSud().getProgrammeAlimentation();
         return "Alimentation : " + p.getTypeAliment() + "  |  " + p.getQuantiteParRepas() + " kg/repas";
     }
 }

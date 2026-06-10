@@ -37,17 +37,22 @@ public class SmartFarmingApp extends Application {
     static final String WHITE    = "white";
 
     @Override
-    public void start(Stage stage) {
+    public void start(Stage primaryStage) {
+        // 1. on prepare le scene graph a partir du noeud racine (root)
         BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: " + BG + ";");
         root.setTop(buildHeader());
         root.setCenter(buildTabs());
 
-        stage.setTitle("ESI SmartFarming — Interface de gestion");
-        stage.setScene(new Scene(root, 1150, 780));
-        stage.setMinWidth(950);
-        stage.setMinHeight(650);
-        stage.show();
+        // 2. on cree la scene en lui passant le noeud racine et les dimensions
+        Scene scene = new Scene(root, 1150, 780);
+
+        // 3. on prepare le Stage (le theatre), on lui ajoute la scene et on l'affiche
+        primaryStage.setTitle("ESI SmartFarming — Interface de gestion");
+        primaryStage.setScene(scene);
+        primaryStage.setMinWidth(950);
+        primaryStage.setMinHeight(650);
+        primaryStage.show();
     }
 
     private HBox buildHeader() {

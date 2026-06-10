@@ -36,8 +36,7 @@ public class DashboardView {
         return scroll;
     }
 
-    // ── Stat cards ────────────────────────────────────────────────────────────
-
+    // les cartes de statistiques
     private HBox buildStatCards(DataStore ds) {
         int totalZones    = ds.getZones().size();
         int totalCapteurs = ds.getAllCapteurs().size();
@@ -66,8 +65,7 @@ public class DashboardView {
         return card;
     }
 
-    // ── Zone cards ────────────────────────────────────────────────────────────
-
+    // les cartes des zones
     private HBox buildZoneCards(DataStore ds) {
         HBox row = new HBox(16);
         for (Zone z : ds.getZones()) {
@@ -112,8 +110,7 @@ public class DashboardView {
         return card;
     }
 
-    // ── Recent alerts ─────────────────────────────────────────────────────────
-
+    // les 3 dernieres alertes
     private VBox buildRecentAlerts(DataStore ds) {
         VBox box = new VBox(8);
         int count = 0;
@@ -154,8 +151,7 @@ public class DashboardView {
         return row;
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
-
+    // methodes utilitaires
     private Label sectionTitle(String text) {
         Label l = new Label(text);
         l.setStyle("-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: " + SmartFarmingApp.TEXT + ";");
