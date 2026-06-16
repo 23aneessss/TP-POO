@@ -9,20 +9,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Classe abstraite représentant une zone géographique de la ferme intelligente.
- * <p>
- * Chaque zone possède un code unique, un nom, un statut (ACTIVE / SUSPENDUE),
- * et une liste de capteurs qui lui sont rattachés.
- * Les sous-classes concrètes spécialisent le type de production :
- * <ul>
- *   <li>{@link ZoneCulture}  — cultures végétales</li>
- *   <li>{@link ZoneElevage}  — élevage animal</li>
- *   <li>{@link ZoneAquacole} — aquaculture</li>
- * </ul>
- *
- * @see com.esi.smartfarming.core.Suspendable
- */
 public abstract class Zone implements Suspendable, Serializable {
     private static final long serialVersionUID = 1L;
     protected String code;

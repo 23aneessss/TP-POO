@@ -22,12 +22,6 @@ public abstract class CapteurNumerique extends Capteur {
 
     public abstract ReleveNumerique envoyerReleve();
 
-    /**
-     * Genere une nouvelle valeur simulee pour un releve.
-     * La plage est volontairement elargie de 15% au-dela des seuils [min, max] :
-     * la plupart des valeurs tombent dans la plage normale, mais une partie
-     * depasse legitimement les seuils, ce qui permet de declencher des alertes.
-     */
     protected static double genererValeur(double min, double max) {
         double marge = (max - min) * 0.15;
         return (min - marge) + Math.random() * ((max - min) + 2 * marge);

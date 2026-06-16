@@ -29,7 +29,6 @@ public class Main {
 
         titre("BIENVENUE - SmartFarming ESI");
 
-        // ── Initialisation de base ─────────────────────────────────────────
         System.out.print("Nom de la zone culture  : ");
         ZoneCulture zoneCulture = new ZoneCulture("ZC-001", sc.nextLine().trim());
 
@@ -43,7 +42,6 @@ public class Main {
 
         System.out.println("\nZones creees avec succes.");
 
-        // ── Menu principal ─────────────────────────────────────────────────
         boolean running = true;
         while (running) {
             titre("MENU PRINCIPAL");
@@ -67,10 +65,6 @@ public class Main {
         System.out.println("\nAu revoir !");
         sc.close();
     }
-
-    // =========================================================================
-    // ZONE CULTURE
-    // =========================================================================
 
     static void menuCulture(ZoneCulture zone) {
         boolean back = false;
@@ -233,10 +227,6 @@ public class Main {
                 System.out.println("     Releves enregistres : " + cn.getHistorique().size());
         }
     }
-
-    // =========================================================================
-    // ZONE ELEVAGE
-    // =========================================================================
 
     static void menuElevage(ZoneElevage zone) {
         boolean back = false;
@@ -429,10 +419,6 @@ public class Main {
         }
     }
 
-    // =========================================================================
-    // ZONE AQUACOLE
-    // =========================================================================
-
     static void menuAquacole(ZoneAquacole zone) {
         boolean back = false;
         while (!back) {
@@ -537,10 +523,6 @@ public class Main {
         }
     }
 
-    // =========================================================================
-    // ALERTES
-    // =========================================================================
-
     static void creerAlertesSiNecessaire(ReleveNumerique r) {
         if (r.getNiveau() == NiveauReleve.NORMAL) return;
         NiveauGravite gravite = (r.getNiveau() == NiveauReleve.CRITIQUE)
@@ -585,10 +567,6 @@ public class Main {
             }
         }
     }
-
-    // =========================================================================
-    // UTILITAIRES
-    // =========================================================================
 
     static void toggleZone(com.esi.smartfarming.zone.Zone z) {
         if (z.getStatut() == StatutZone.ACTIVE) {

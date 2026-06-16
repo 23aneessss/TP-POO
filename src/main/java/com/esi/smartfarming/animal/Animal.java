@@ -10,21 +10,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Classe abstraite représentant un animal de la ferme.
- * <p>
- * Chaque animal est identifié par un numéro unique, une espèce, un âge et un poids.
- * Il peut être équipé d'un {@link com.esi.smartfarming.capteur.CapteurBiometrique}
- * et d'un {@link com.esi.smartfarming.capteur.CapteurGPS}.
- * Son état de santé est suivi via une liste d'
- * {@link com.esi.smartfarming.sanitaire.EvenementSanitaire}.
- * <p>
- * Sous-classes concrètes :
- * <ul>
- *   <li>{@link Ruminant} — production laitière (HistoriqueLait)</li>
- *   <li>{@link Volaille} — production d'œufs (HistoriqueOeuf)</li>
- * </ul>
- */
 public abstract class Animal implements Serializable {
     private static final long serialVersionUID = 1L;
     private int numero;

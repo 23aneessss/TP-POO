@@ -51,8 +51,6 @@ public class ZonesView {
         else tabsRef.getSelectionModel().selectFirst();
     }
 
-    // ── Onglet : ajouter une zone ──────────────────────────────────────────────
-
     private Node buildAjouterZoneTab() {
         DataStore ds = DataStore.getInstance();
         Label title = boldLabel("Ajouter une nouvelle zone", 16);
@@ -128,8 +126,6 @@ public class ZonesView {
             }
         });
     }
-
-    // ── Onglet : Zone Culture ──────────────────────────────────────────────────
 
     private Node buildCultureTab(ZoneCulture zone) {
         DataStore ds = DataStore.getInstance();
@@ -354,8 +350,6 @@ public class ZonesView {
             } catch (Exception ex) { erreur(ex.getMessage()); }
         });
     }
-
-    // ── Onglet : Zone Elevage ─────────────────────────────────────────────────
 
     private Node buildElevageTab(ZoneElevage zone) {
         DataStore ds = DataStore.getInstance();
@@ -713,8 +707,6 @@ public class ZonesView {
         });
     }
 
-    // ── Onglet : Zone Aquacole ────────────────────────────────────────────────
-
     private Node buildAquacoleTab(ZoneAquacole zone) {
         DataStore ds = DataStore.getInstance();
         ObservableList<String[]> especesData = FXCollections.observableArrayList();
@@ -876,8 +868,6 @@ public class ZonesView {
         a.getDialogPane().setContent(ta);
         a.showAndWait();
     }
-
-    // ── Tables ────────────────────────────────────────────────────────────────
 
     @SuppressWarnings("unchecked")
     private TableView<String[]> cultureTable(ObservableList<String[]> data) {

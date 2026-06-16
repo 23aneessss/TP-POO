@@ -17,9 +17,9 @@ public class CapteurBiometrique extends CapteurNumerique {
     private double activiteMin, activiteMax;
 
     public CapteurBiometrique(String code, Zone zone, String unite,
-                               Animal animal, double temperatureCorporelle, double niveauActivite,
-                               double tempCorpMin, double tempCorpMax,
-                               double activiteMin, double activiteMax) {
+                                Animal animal, double temperatureCorporelle, double niveauActivite,
+                                double tempCorpMin, double tempCorpMax,
+                                double activiteMin, double activiteMax) {
         super(code, zone, unite);
         this.animal                = animal;
         this.temperatureCorporelle = temperatureCorporelle;

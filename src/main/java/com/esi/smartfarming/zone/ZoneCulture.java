@@ -10,14 +10,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Zone dédiée aux cultures végétales (céréales, légumes, fruits…).
- * <p>
- * Gère une liste de {@link com.esi.smartfarming.culture.Culture}, des
- * capteurs environnementaux ({@link com.esi.smartfarming.capteur.CapteurEnvironnemental})
- * et des capteurs de sol ({@link com.esi.smartfarming.capteur.CapteurSol}).
- * Permet d'enregistrer le rendement de récolte via {@link #enregistrerRendement}.
- */
 public class ZoneCulture extends Zone {
     private static final long serialVersionUID = 1L;
     private List<Culture> cultures;

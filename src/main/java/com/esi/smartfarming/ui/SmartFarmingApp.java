@@ -53,11 +53,6 @@ public class SmartFarmingApp extends Application {
         demarrerGenerationAutomatique();
     }
 
-    /**
-     * Toutes les 5 secondes, chaque capteur numerique actif produit un nouveau
-     * releve simule. Un releve hors seuil declenche automatiquement une alerte
-     * (logique deja centralisee dans DataStore.envoyerRelevesZone).
-     */
     private void demarrerGenerationAutomatique() {
         Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(5), e -> {
             DataStore ds = DataStore.getInstance();
