@@ -13,13 +13,20 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class ProductionView {
 
     private ObservableList<ProductionRecord> allProductions;
     private FilteredList<ProductionRecord> filtered;
     private TableView<ProductionRecord> table;
+    private DatePicker dpDebut;
+    private DatePicker dpFin;
+    private Predicate<ProductionRecord> typePredicate = p -> true;
 
     public Node build() {
         DataStore ds = DataStore.getInstance();
@@ -40,6 +47,7 @@ public class ProductionView {
             buildHeader(),
             buildStatCards(ds),
             buildFilterBar(),
+            buildDateFilterBar(),
             table,
             buildFooter(ds)
         );
@@ -93,14 +101,49 @@ public class ProductionView {
         Button btnOeufs = filterBtn("Oeufs", SmartFarmingApp.ORANGE);
         Button btnRend = filterBtn("Rendement culture", SmartFarmingApp.GREEN);
 
-        btnTous.setOnAction(e -> filtered.setPredicate(p -> true));
-        btnLait.setOnAction(e -> filtered.setPredicate(p -> p.getType().equals("Lait")));
-        btnOeufs.setOnAction(e -> filtered.setPredicate(p -> p.getType().equals("Oeufs")));
-        btnRend.setOnAction(e -> filtered.setPredicate(p -> p.getType().equals("Rendement culture")));
+        btnTous.setOnAction(e -> { typePredicate = p -> true; applyFilters(); });
+        btnLait.setOnAction(e -> { typePredicate = p -> p.getType().equals("Lait"); applyFilters(); });
+        btnOeufs.setOnAction(e -> { typePredicate = p -> p.getType().equals("Oeufs"); applyFilters(); });
+        btnRend.setOnAction(e -> { typePredicate = p -> p.getType().equals("Rendement culture"); applyFilters(); });
 
         HBox bar = new HBox(10, btnTous, btnLait, btnOeufs, btnRend);
         bar.setAlignment(Pos.CENTER_LEFT);
         return bar;
+    }
+
+    private HBox buildDateFilterBar() {
+        Label lbl = new Label("Periode :");
+        lbl.setStyle("-fx-font-size: 12; -fx-text-fill: " + SmartFarmingApp.TEXT + ";");
+
+        dpDebut = new DatePicker();
+        dpFin   = new DatePicker();
+        dpDebut.setPromptText("Du");
+        dpFin.setPromptText("Au");
+        dpDebut.setPrefWidth(150);
+        dpFin.setPrefWidth(150);
+        dpDebut.setOnAction(e -> applyFilters());
+        dpFin.setOnAction(e -> applyFilters());
+
+        Button btnReset = new Button("Effacer");
+        btnReset.setOnAction(e -> { dpDebut.setValue(null); dpFin.setValue(null); applyFilters(); });
+
+        HBox bar = new HBox(10, lbl, dpDebut, dpFin, btnReset);
+        bar.setAlignment(Pos.CENTER_LEFT);
+        return bar;
+    }
+
+    private void applyFilters() {
+        filtered.setPredicate(p -> typePredicate.test(p) && dansIntervalle(p.getDate()));
+    }
+
+    private boolean dansIntervalle(Date d) {
+        if (dpDebut == null || d == null) return true;
+        LocalDate jour = d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate debut = dpDebut.getValue();
+        LocalDate fin = dpFin.getValue();
+        if (debut != null && jour.isBefore(debut)) return false;
+        if (fin != null && jour.isAfter(fin)) return false;
+        return true;
     }
 
     private Button filterBtn(String label, String color) {
@@ -157,12 +200,18 @@ public class ProductionView {
     }
 
     private HBox buildFooter(DataStore ds) {
-        Label info = new Label(
-            "Programme d'alimentation Zone Est : " + ds.getZoneEst().getProgrammeAlimentation().getTypeAliment()
-            + " (" + ds.getZoneEst().getProgrammeAlimentation().getQuantiteParRepas() + " kg/repas)     |     "
-            + "Zone Sud : " + ds.getZoneSud().getProgrammeAlimentation().getTypeAliment()
-            + " (" + ds.getZoneSud().getProgrammeAlimentation().getQuantiteParRepas() + " kg/repas)"
-        );
+        StringBuilder sb = new StringBuilder();
+        for (com.esi.smartfarming.zone.ZoneElevage z : ds.getZonesElevage()) {
+            if (sb.length() > 0) sb.append("     |     ");
+            sb.append(z.getNom()).append(" : ").append(z.getProgrammeAlimentation().getTypeAliment())
+              .append(" (").append(z.getProgrammeAlimentation().getQuantiteParRepas()).append(" kg/repas)");
+        }
+        for (com.esi.smartfarming.zone.ZoneAquacole z : ds.getZonesAquacole()) {
+            if (sb.length() > 0) sb.append("     |     ");
+            sb.append(z.getNom()).append(" : ").append(z.getProgrammeAlimentation().getTypeAliment())
+              .append(" (").append(z.getProgrammeAlimentation().getQuantiteParRepas()).append(" kg/repas)");
+        }
+        Label info = new Label(sb.toString());
         info.setStyle("-fx-font-size: 11; -fx-text-fill: " + SmartFarmingApp.SUBTEXT + ";");
         HBox footer = new HBox(info);
         footer.setPadding(new Insets(8, 12, 8, 12));

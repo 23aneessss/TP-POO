@@ -49,6 +49,9 @@ public class CapteurEnvironnemental extends CapteurNumerique {
 
     @Override
     public ReleveNumerique envoyerReleve() {
+        temperature  = genererValeur(tempMin, tempMax);
+        humidite     = genererValeur(humMin, humMax);
+        pluviometrie = genererValeur(pluvMin, pluvMax);
         boolean ok = verifierTemperature() && verifierHumidite() && verifierPluviometrie();
         NiveauReleve niveau = ok ? NiveauReleve.NORMAL : NiveauReleve.AVERTISSEMENT;
         ReleveNumerique releve = new ReleveNumerique(historique.size() + 1, this, new Date(), niveau, temperature, unite, this);

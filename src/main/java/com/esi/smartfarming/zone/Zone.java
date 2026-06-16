@@ -39,6 +39,7 @@ public abstract class Zone implements Suspendable, Serializable {
 
     public String getCode() { return code; }
     public String getNom() { return nom; }
+    public void setNom(String nom) { this.nom = nom; }
     public StatutZone getStatut() { return statut; }
     public List<Capteur> getCapteurs() { return capteurs; }
 

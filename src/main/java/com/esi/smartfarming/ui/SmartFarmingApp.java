@@ -1,5 +1,11 @@
 package com.esi.smartfarming.ui;
 
+import com.esi.smartfarming.data.DataStore;
+import com.esi.smartfarming.enums.StatutZone;
+import com.esi.smartfarming.zone.Zone;
+
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -9,6 +15,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -42,6 +49,26 @@ public class SmartFarmingApp extends Application {
         primaryStage.setMinWidth(950);
         primaryStage.setMinHeight(650);
         primaryStage.show();
+
+        demarrerGenerationAutomatique();
+    }
+
+    /**
+     * Toutes les 5 secondes, chaque capteur numerique actif produit un nouveau
+     * releve simule. Un releve hors seuil declenche automatiquement une alerte
+     * (logique deja centralisee dans DataStore.envoyerRelevesZone).
+     */
+    private void demarrerGenerationAutomatique() {
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(5), e -> {
+            DataStore ds = DataStore.getInstance();
+            for (Zone zone : ds.getZones()) {
+                if (zone.getStatut() == StatutZone.ACTIVE) {
+                    ds.envoyerRelevesZone(zone);
+                }
+            }
+        }));
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.play();
     }
 
     private HBox buildHeader() {

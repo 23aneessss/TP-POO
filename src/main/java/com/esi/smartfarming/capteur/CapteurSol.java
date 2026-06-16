@@ -49,6 +49,9 @@ public class CapteurSol extends CapteurNumerique {
 
     @Override
     public ReleveNumerique envoyerReleve() {
+        ph          = genererValeur(phMin, phMax);
+        humidite    = genererValeur(humMin, humMax);
+        teneurAzote = genererValeur(azoteMin, azoteMax);
         boolean ok = verifierPh() && verifierHumidite() && verifierTeneurAzote();
         NiveauReleve niveau = ok ? NiveauReleve.NORMAL : NiveauReleve.AVERTISSEMENT;
         ReleveNumerique releve = new ReleveNumerique(historique.size() + 1, this, new Date(), niveau, ph, unite, this);

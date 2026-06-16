@@ -54,6 +54,9 @@ public class CapteurEau extends CapteurNumerique {
 
     @Override
     public ReleveNumerique envoyerReleve() {
+        temperateur = genererValeur(tempMin, tempMax);
+        oxygene     = genererValeur(oxyMin, oxyMax);
+        ph          = genererValeur(phMin, phMax);
         boolean ok = verifierTemperature() && verifierOxygene() && verifierPh();
         NiveauReleve niveau = ok ? NiveauReleve.NORMAL : NiveauReleve.AVERTISSEMENT;
         ReleveNumerique releve = new ReleveNumerique(historique.size() + 1, this, new Date(), niveau, temperateur, unite, this);

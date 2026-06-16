@@ -221,7 +221,20 @@ Au démarrage, `DataStore.loadOrCreate()` tente de charger ce fichier ; en cas d
 
 *Projet réalisé dans le cadre du TP Programmation Orientée Objet — ESI 2025/2026*
 
+---
 
-export FX=~/Downloads/javafx-sdk-17.0.13/lib                           
+## Compilation & exécution (JavaFX)
+
+Le SDK JavaFX est installé dans `~/javafx-sdk-17.0.13` (emplacement stable, hors `~/Downloads`).
+
+```bash
+export FX=~/javafx-sdk-17.0.13/lib
 find src -name "*.java" | xargs javac --module-path $FX --add-modules javafx.controls -d out
 java --module-path $FX --add-modules javafx.controls -cp out com.esi.smartfarming.ui.SmartFarmingApp
+```
+
+> Si le dossier `~/javafx-sdk-17.0.13` n'existe pas, (re)télécharger le SDK :
+> ```bash
+> cd ~ && curl -L -o javafx.zip https://download2.gluonhq.com/openjfx/17.0.13/openjfx-17.0.13_osx-aarch64_bin-sdk.zip && unzip -q javafx.zip && rm javafx.zip
+> ```
+> (`osx-aarch64` = Mac Apple Silicon ; pour un Mac Intel, remplacer par `osx-x64`.)

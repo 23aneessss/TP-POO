@@ -54,10 +54,10 @@ public class CapteursView {
         listTitle = new Label();
         listTitle.setStyle("-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: " + SmartFarmingApp.TEXT + ";");
 
-        cbZoneFilter = new ComboBox<>(FXCollections.observableArrayList(
-            "Toutes zones", "Zone Nord", "Zone Est", "Zone Sud"));
-        cbZoneFilter.getSelectionModel().selectFirst();
+        cbZoneFilter = new ComboBox<>();
         cbZoneFilter.setMaxWidth(Double.MAX_VALUE);
+        refreshZoneFilterItems(ds);
+        cbZoneFilter.getSelectionModel().selectFirst();
         cbZoneFilter.setOnAction(e -> refreshCapteurCards(ds));
 
         Label filterLbl = new Label("Filtrer par zone :");
@@ -74,7 +74,18 @@ public class CapteursView {
         return scroll;
     }
 
+    private void refreshZoneFilterItems(DataStore ds) {
+        String current = cbZoneFilter.getValue();
+        List<String> noms = new ArrayList<>();
+        noms.add("Toutes zones");
+        for (com.esi.smartfarming.zone.Zone z : ds.getZones()) noms.add(z.getNom());
+        cbZoneFilter.setItems(FXCollections.observableArrayList(noms));
+        if (current != null && noms.contains(current)) cbZoneFilter.setValue(current);
+        else cbZoneFilter.getSelectionModel().selectFirst();
+    }
+
     private void refreshCapteurCards(DataStore ds) {
+        refreshZoneFilterItems(ds);
         capteurListBox.getChildren().clear();
         String zoneFiltre = cbZoneFilter.getValue();
         int count = 0;

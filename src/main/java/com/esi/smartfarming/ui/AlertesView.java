@@ -12,12 +12,20 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.function.Predicate;
+
 public class AlertesView {
 
     private ObservableList<Alerte> allAlertes;
     private FilteredList<Alerte>   filteredAlertes;
     private TableView<Alerte>      table;
     private Label                  badgeLabel;
+    private DatePicker             dpDebut;
+    private DatePicker             dpFin;
+    private Predicate<Alerte>      niveauPredicate = a -> true;
 
     public Node build() {
         DataStore ds = DataStore.getInstance();
@@ -33,6 +41,7 @@ public class AlertesView {
         root.getChildren().addAll(
             buildHeader(),
             buildFilterBar(),
+            buildDateFilterBar(),
             buildActionBar(),
             table,
             buildFooter()
@@ -68,14 +77,49 @@ public class AlertesView {
 
         btnTous.setStyle(btnTous.getStyle() + " -fx-font-weight: bold;");
 
-        btnTous.setOnAction(e  -> filteredAlertes.setPredicate(a -> true));
-        btnCrit.setOnAction(e  -> filteredAlertes.setPredicate(a -> a.getNiveauGravite().name().equals("CRITIQUE")));
-        btnAvert.setOnAction(e -> filteredAlertes.setPredicate(a -> a.getNiveauGravite().name().equals("AVERTISSEMENT")));
-        btnAcq.setOnAction(e   -> filteredAlertes.setPredicate(Alerte::isAcquittee));
+        btnTous.setOnAction(e  -> { niveauPredicate = a -> true; applyFilters(); });
+        btnCrit.setOnAction(e  -> { niveauPredicate = a -> a.getNiveauGravite().name().equals("CRITIQUE"); applyFilters(); });
+        btnAvert.setOnAction(e -> { niveauPredicate = a -> a.getNiveauGravite().name().equals("AVERTISSEMENT"); applyFilters(); });
+        btnAcq.setOnAction(e   -> { niveauPredicate = Alerte::isAcquittee; applyFilters(); });
 
         HBox bar = new HBox(10, btnTous, btnCrit, btnAvert, btnAcq);
         bar.setAlignment(Pos.CENTER_LEFT);
         return bar;
+    }
+
+    private HBox buildDateFilterBar() {
+        Label lbl = new Label("Periode :");
+        lbl.setStyle("-fx-font-size: 12; -fx-text-fill: " + SmartFarmingApp.TEXT + ";");
+
+        dpDebut = new DatePicker();
+        dpFin   = new DatePicker();
+        dpDebut.setPromptText("Du");
+        dpFin.setPromptText("Au");
+        dpDebut.setPrefWidth(150);
+        dpFin.setPrefWidth(150);
+        dpDebut.setOnAction(e -> applyFilters());
+        dpFin.setOnAction(e -> applyFilters());
+
+        Button btnReset = new Button("Effacer");
+        btnReset.setOnAction(e -> { dpDebut.setValue(null); dpFin.setValue(null); applyFilters(); });
+
+        HBox bar = new HBox(10, lbl, dpDebut, dpFin, btnReset);
+        bar.setAlignment(Pos.CENTER_LEFT);
+        return bar;
+    }
+
+    private void applyFilters() {
+        filteredAlertes.setPredicate(a -> niveauPredicate.test(a) && dansIntervalle(a.getDateHeure()));
+    }
+
+    private boolean dansIntervalle(Date d) {
+        if (dpDebut == null || d == null) return true;
+        LocalDate jour = d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate debut = dpDebut.getValue();
+        LocalDate fin = dpFin.getValue();
+        if (debut != null && jour.isBefore(debut)) return false;
+        if (fin != null && jour.isAfter(fin)) return false;
+        return true;
     }
 
     private Button filterBtn(String label, String filter) {

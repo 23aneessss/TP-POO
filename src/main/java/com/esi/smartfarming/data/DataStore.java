@@ -50,15 +50,16 @@ public class DataStore implements Serializable {
     private static transient DataStore INSTANCE;
 
     // ── Persistent fields ─────────────────────────────────────────────────────
-    private ZoneCulture  zoneNord;
-    private ZoneElevage  zoneEst;
-    private ZoneAquacole zoneSud;
+    private List<ZoneCulture>  zonesCulture  = new ArrayList<>();
+    private List<ZoneElevage>  zonesElevage  = new ArrayList<>();
+    private List<ZoneAquacole> zonesAquacole = new ArrayList<>();
     private List<Alerte> alertes      = new ArrayList<>();
     private int nextAnimalId          = 6;
     private int nextCultureId         = 3;
     private int nextAlerteId          = 5;
     private int nextCapteurSeq        = 10;
     private int nextEspeceId          = 2;
+    private int nextZoneSeq           = 2;
     private List<ProductionRecord> productions = new ArrayList<>();
     private List<String> typesAliment = new ArrayList<>(Arrays.asList(
         "Mais broye + luzerne", "Granules flottants", "Foin", "Granules", "Luzerne", "Ensilage"));
@@ -67,6 +68,20 @@ public class DataStore implements Serializable {
     private transient ObservableList<Alerte> obsAlertes;
 
     private DataStore() {}
+
+    // ── Defensive deserialization (schema changes between versions) ───────────
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        if (zonesCulture == null || zonesElevage == null || zonesAquacole == null) {
+            throw new InvalidObjectException(
+                "ferme.dat provient d'un schema incompatible (anciens champs zoneNord/zoneEst/zoneSud) — reinitialisation requise.");
+        }
+        if (alertes       == null) alertes       = new ArrayList<>();
+        if (productions   == null) productions   = new ArrayList<>();
+        if (typesAliment  == null) typesAliment  = new ArrayList<>();
+        if (nextZoneSeq < 2) nextZoneSeq = 2;
+    }
 
     // ── Singleton ─────────────────────────────────────────────────────────────
 
@@ -111,21 +126,56 @@ public class DataStore implements Serializable {
 
     // ── Accessors ─────────────────────────────────────────────────────────────
 
-    public ZoneCulture  getZoneNord() { return zoneNord; }
-    public ZoneElevage  getZoneEst()  { return zoneEst;  }
-    public ZoneAquacole getZoneSud()  { return zoneSud;  }
+    /** Zone Culture "principale" — la premiere creee, pour compatibilite avec l'existant. */
+    public ZoneCulture  getZoneNord() { return zonesCulture.isEmpty()  ? null : zonesCulture.get(0);  }
+    public ZoneElevage  getZoneEst()  { return zonesElevage.isEmpty()  ? null : zonesElevage.get(0);  }
+    public ZoneAquacole getZoneSud()  { return zonesAquacole.isEmpty() ? null : zonesAquacole.get(0); }
     public List<Alerte> getAlertes()  { return alertes;  }
 
+    public List<ZoneCulture>  getZonesCulture()  { return zonesCulture;  }
+    public List<ZoneElevage>  getZonesElevage()  { return zonesElevage;  }
+    public List<ZoneAquacole> getZonesAquacole() { return zonesAquacole; }
+
     public List<Zone> getZones() {
-        return Arrays.asList(zoneNord, zoneEst, zoneSud);
+        List<Zone> all = new ArrayList<>();
+        all.addAll(zonesCulture);
+        all.addAll(zonesElevage);
+        all.addAll(zonesAquacole);
+        return all;
     }
 
     public List<Capteur> getAllCapteurs() {
         List<Capteur> all = new ArrayList<>();
-        all.addAll(zoneNord.getCapteurs());
-        all.addAll(zoneEst.getCapteurs());
-        all.addAll(zoneSud.getCapteurs());
+        for (Zone z : getZones()) all.addAll(z.getCapteurs());
         return all;
+    }
+
+    // ── Mutations: gestion generique des zones (ajout / renommage / desactivation) ────
+
+    public ZoneCulture ajouterZoneCulture(String nom) {
+        ZoneCulture z = new ZoneCulture("ZC-" + String.format("%02d", nextZoneSeq++), nom);
+        zonesCulture.add(z);
+        save();
+        return z;
+    }
+
+    public ZoneElevage ajouterZoneElevage(String nom, ProgrammeAlimentation prog) {
+        ZoneElevage z = new ZoneElevage("ZE-" + String.format("%02d", nextZoneSeq++), nom, prog);
+        zonesElevage.add(z);
+        save();
+        return z;
+    }
+
+    public ZoneAquacole ajouterZoneAquacole(String nom, ProgrammeAlimentation prog) {
+        ZoneAquacole z = new ZoneAquacole("ZA-" + String.format("%02d", nextZoneSeq++), nom, prog);
+        zonesAquacole.add(z);
+        save();
+        return z;
+    }
+
+    public void renommerZone(Zone z, String nouveauNom) {
+        z.setNom(nouveauNom);
+        save();
     }
 
     public List<ProductionRecord> getProductions() {
@@ -210,48 +260,52 @@ public class DataStore implements Serializable {
 
     // ── Mutations: Zone Culture ───────────────────────────────────────────────
 
-    public void ajouterCulture(Culture c) {
-        zoneNord.ajouterCulture(c);
+    public void ajouterCulture(ZoneCulture zone, Culture c) {
+        zone.ajouterCulture(c);
         save();
     }
 
     public void changerStageCulture(Culture c, StageCroissance stade) {
+        if (stade.ordinal() < c.getStageCroissance().ordinal()) {
+            throw new IllegalArgumentException(
+                "Retour en arriere impossible : la culture est deja au stade " + c.getStageCroissance() + ".");
+        }
         c.setStageCroissance(stade);
         save();
     }
 
-    public void enregistrerRendement(double rendement) {
-        zoneNord.enregistrerRendement(rendement, new Date());
-        getProductions().add(new ProductionRecord(new Date(), "Zone Nord", "Rendement culture", "—", rendement, "t/ha"));
+    public void enregistrerRendement(ZoneCulture zone, double rendement) {
+        zone.enregistrerRendement(rendement, new Date());
+        getProductions().add(new ProductionRecord(new Date(), zone.getNom(), "Rendement culture", "—", rendement, "t/ha"));
         save();
     }
 
-    public void ajouterCapteurEnv(CapteurEnvironnemental c) {
-        zoneNord.ajouterCapteurEnv(c);
+    public void ajouterCapteurEnv(ZoneCulture zone, CapteurEnvironnemental c) {
+        zone.ajouterCapteurEnv(c);
         save();
     }
 
-    public void ajouterCapteurSol(CapteurSol c) {
-        zoneNord.ajouterCapteurSol(c);
+    public void ajouterCapteurSol(ZoneCulture zone, CapteurSol c) {
+        zone.ajouterCapteurSol(c);
         save();
     }
 
     // ── Mutations: Zone Elevage ───────────────────────────────────────────────
 
-    public void ajouterAnimal(Animal a) {
-        zoneEst.ajouterAnimal(a);
+    public void ajouterAnimal(ZoneElevage zone, Animal a) {
+        zone.ajouterAnimal(a);
         save();
     }
 
-    public void enregistrerProductionRuminant(Ruminant r, double litres) {
+    public void enregistrerProductionRuminant(ZoneElevage zone, Ruminant r, double litres) {
         r.enregistrerProduction(litres, new Date());
-        getProductions().add(new ProductionRecord(new Date(), "Zone Est", "Lait", r.getEspece(), litres, "L"));
+        getProductions().add(new ProductionRecord(new Date(), zone.getNom(), "Lait", r.getEspece(), litres, "L"));
         save();
     }
 
-    public void enregistrerProductionVolaille(Volaille v, int nbOeufs) {
+    public void enregistrerProductionVolaille(ZoneElevage zone, Volaille v, int nbOeufs) {
         v.enregistrerProduction(nbOeufs, new Date());
-        getProductions().add(new ProductionRecord(new Date(), "Zone Est", "Oeufs", v.getEspece(), nbOeufs, "oeufs"));
+        getProductions().add(new ProductionRecord(new Date(), zone.getNom(), "Oeufs", v.getEspece(), nbOeufs, "oeufs"));
         save();
     }
 
@@ -262,38 +316,38 @@ public class DataStore implements Serializable {
         save();
     }
 
-    public void ajouterCapteurBio(Animal animal, CapteurBiometrique c) {
+    public void ajouterCapteurBio(ZoneElevage zone, Animal animal, CapteurBiometrique c) {
         animal.setCapteurBiometrique(c);
-        zoneEst.getCapteurs().add(c);
+        zone.getCapteurs().add(c);
         save();
     }
 
-    public void ajouterCapteurGPS(Animal animal, CapteurGPS c) {
+    public void ajouterCapteurGPS(ZoneElevage zone, Animal animal, CapteurGPS c) {
         animal.setCapteurGPS(c);
-        zoneEst.getCapteurs().add(c);
+        zone.getCapteurs().add(c);
         save();
     }
 
-    public void modifierProgAlimentationElevage(String aliment, double quantite) {
-        zoneEst.setProgrammeAlimentation(new ProgrammeAlimentation(aliment, quantite));
+    public void modifierProgAlimentationElevage(ZoneElevage zone, String aliment, double quantite) {
+        zone.setProgrammeAlimentation(new ProgrammeAlimentation(aliment, quantite));
         ajouterTypeAliment(aliment);
         save();
     }
 
     // ── Mutations: Zone Aquacole ──────────────────────────────────────────────
 
-    public void ajouterEspeceAquacole(EspeceAquacole e) {
-        zoneSud.ajouterEspece(e);
+    public void ajouterEspeceAquacole(ZoneAquacole zone, EspeceAquacole e) {
+        zone.ajouterEspece(e);
         save();
     }
 
-    public void ajouterCapteurEau(CapteurEau c) {
-        zoneSud.ajouterCapteurEau(c);
+    public void ajouterCapteurEau(ZoneAquacole zone, CapteurEau c) {
+        zone.ajouterCapteurEau(c);
         save();
     }
 
-    public void modifierProgAlimentationAquacole(String aliment, double quantite) {
-        zoneSud.setProgrammeAlimentation(new ProgrammeAlimentation(aliment, quantite));
+    public void modifierProgAlimentationAquacole(ZoneAquacole zone, String aliment, double quantite) {
+        zone.setProgrammeAlimentation(new ProgrammeAlimentation(aliment, quantite));
         ajouterTypeAliment(aliment);
         save();
     }
@@ -323,10 +377,10 @@ public class DataStore implements Serializable {
 
     // ── Diagnostics ───────────────────────────────────────────────────────────
 
-    public String verifierLimitesElevage() {
+    public String verifierLimitesElevage(ZoneElevage zone) {
         StringBuilder sb = new StringBuilder();
-        for (Animal a : zoneEst.getAnimaux()) {
-            boolean ok = a.verifierLimites(zoneEst);
+        for (Animal a : zone.getAnimaux()) {
+            boolean ok = a.verifierLimites(zone);
             sb.append("#").append(a.getNumero()).append(" ").append(a.getEspece())
               .append("  →  ").append(ok ? "✔ dans les limites" : "✖ LIMITE DEPASSEE")
               .append("\n");
@@ -491,7 +545,7 @@ public class DataStore implements Serializable {
         nord.ajouterCapteurEnv(env01);
         nord.ajouterCapteurSol(sol01);
         nord.ajouterCapteurSol(sol02);
-        ds.zoneNord = nord;
+        ds.zonesCulture.add(nord);
 
         // Zone Est – Elevage
         ProgrammeAlimentation progEst = new ProgrammeAlimentation("Mais broye + luzerne", 15.0);
@@ -517,19 +571,17 @@ public class DataStore implements Serializable {
         vache2.setCapteurBiometrique(bio02); vache2.setCapteurGPS(gps02);
         est.getCapteurs().add(bio01); est.getCapteurs().add(bio02);
         est.getCapteurs().add(gps01); est.getCapteurs().add(gps02);
-        ds.zoneEst = est;
+        ds.zonesElevage.add(est);
 
-        // Zone Sud – Aquacole (SUSPENDUE)
+        // Zone Sud – Aquacole
         ProgrammeAlimentation progSud = new ProgrammeAlimentation("Granules flottants", 2.5);
         ZoneAquacole sud = new ZoneAquacole("ZA-01", "Zone Sud", progSud);
-        sud.suspendre();
         sud.ajouterEspece(new EspeceAquacole(1, "Tilapia", 250));
         CapteurEau eau01 = new CapteurEau(
             "EAU-01", sud, "°C", 20.0, 7.0, 7.2, "temperature",
             18.0, 28.0, 5.0, 10.0, 6.5, 8.5);
-        eau01.suspendre();
         sud.ajouterCapteurEau(eau01);
-        ds.zoneSud = sud;
+        ds.zonesAquacole.add(sud);
 
         // Alertes initiales
         ds.alertes.add(new Alerte(1, sol02.envoyerReleve(), NiveauGravite.CRITIQUE,

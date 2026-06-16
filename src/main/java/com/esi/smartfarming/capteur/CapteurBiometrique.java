@@ -45,6 +45,8 @@ public class CapteurBiometrique extends CapteurNumerique {
 
     @Override
     public ReleveNumerique envoyerReleve() {
+        temperatureCorporelle = genererValeur(tempCorpMin, tempCorpMax);
+        niveauActivite         = genererValeur(activiteMin, activiteMax);
         boolean ok = verifierTemperatureCorporelle() && verifierNiveauActivite();
         NiveauReleve niveau = ok ? NiveauReleve.NORMAL : NiveauReleve.AVERTISSEMENT;
         ReleveNumerique releve = new ReleveNumerique(historique.size() + 1, this, new Date(), niveau, temperatureCorporelle, unite, this);

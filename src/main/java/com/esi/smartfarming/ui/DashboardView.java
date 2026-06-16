@@ -39,13 +39,15 @@ public class DashboardView {
     private HBox buildStatCards(DataStore ds) {
         int totalZones    = ds.getZones().size();
         int totalCapteurs = ds.getAllCapteurs().size();
+        int totalAnimaux  = 0;
+        for (com.esi.smartfarming.zone.ZoneElevage z : ds.getZonesElevage()) totalAnimaux += z.getAnimaux().size();
 
         HBox row = new HBox(16);
         row.getChildren().addAll(
             statCard("Zones actives",       ds.countZonesActives()   + " / " + totalZones,    SmartFarmingApp.GREEN),
             statCard("Capteurs actifs",     ds.countCapteursActifs() + " / " + totalCapteurs, SmartFarmingApp.BLUE),
             statCard("Alertes actives",     String.valueOf(ds.countAlertesActives()),          SmartFarmingApp.RED),
-            statCard("Total animaux",       String.valueOf(ds.getZoneEst().getAnimaux().size()), SmartFarmingApp.PURPLE)
+            statCard("Total animaux",       String.valueOf(totalAnimaux), SmartFarmingApp.PURPLE)
         );
         return row;
     }
